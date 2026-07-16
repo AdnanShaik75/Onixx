@@ -36,11 +36,14 @@ import {
   Zap,
   Shield,
   Globe,
+  Upload,
+  ImageIcon,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useProductStore } from "@/store/products";
 import { useOrderStore, type OrderStatus } from "@/store/orders";
 import { useActivityStore } from "@/store/activity";
+import { useSiteConfig, DEFAULT_HERO_IMAGE } from "@/store/site-config";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,6 +129,7 @@ export default function AdminPage() {
   const { products, addProduct, updateProduct, deleteProduct, resetProducts } = useProductStore();
   const { orders, updateStatus, resetOrders } = useOrderStore();
   const { entries: activityEntries, addEntry } = useActivityStore();
+  const { heroImage, heroImageType, setHeroImage, resetHeroImage } = useSiteConfig();
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -1412,6 +1416,110 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Homepage Hero Image */}
+              <div className="p-4 lg:p-6 bg-card border border-border rounded-[2px]">
+                <h3 className="text-sm font-medium mb-4 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-gold" /> Homepage Hero Image
+                </h3>
+                <p className="text-xs text-muted mb-4">
+                  Upload an image or paste a URL. Recommended size: 1920×1080px. Max file size: 2MB.
+                </p>
+
+                {/* Current Preview */}
+                <div className="relative w-full aspect-video mb-4 bg-background border border-border rounded-[2px] overflow-hidden">
+                  <Image
+                    src={heroImage}
+                    alt="Hero preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-background/80 backdrop-blur-sm text-[10px] text-muted rounded-[2px]">
+                    {heroImageType === "upload" ? "Uploaded" : heroImage === DEFAULT_HERO_IMAGE ? "Default" : "URL"}
+                  </div>
+                </div>
+
+                {/* Upload Button */}
+                <div className="space-y-3">
+                  <label className="flex items-center justify-center gap-2 w-full h-10 border border-dashed border-border rounded-[2px] text-sm text-muted hover:text-gold hover:border-gold/30 transition-colors cursor-pointer">
+                    <Upload className="w-4 h-4" />
+                    Upload Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 2 * 1024 * 1024) {
+                          showToast("File too large. Max 2MB.");
+                          return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const result = ev.target?.result as string;
+                          setHeroImage(result, "upload");
+                          showToast("Hero image updated");
+                          addEntry({ action: "Hero Image", detail: "Homepage hero image updated via upload", type: "system" });
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-[10px] text-muted uppercase">or</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+
+                  {/* URL Input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder="Paste image URL..."
+                      defaultValue={heroImageType === "url" ? heroImage : ""}
+                      className="flex-1 px-3 py-2 bg-transparent border border-border rounded-[2px] text-sm focus:outline-none focus:border-gold/50"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const val = (e.target as HTMLInputElement).value.trim();
+                          if (val) {
+                            setHeroImage(val, "url");
+                            showToast("Hero image updated");
+                            addEntry({ action: "Hero Image", detail: "Homepage hero image updated via URL", type: "system" });
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() => {
+                        const input = document.querySelector('input[type="url"]') as HTMLInputElement;
+                        const val = input?.value.trim();
+                        if (val) {
+                          setHeroImage(val, "url");
+                          showToast("Hero image updated");
+                          addEntry({ action: "Hero Image", detail: "Homepage hero image updated via URL", type: "system" });
+                        }
+                      }}
+                    >
+                      Set
+                    </Button>
+                  </div>
+
+                  {/* Reset */}
+                  {heroImage !== DEFAULT_HERO_IMAGE && (
+                    <button
+                      onClick={() => { resetHeroImage(); showToast("Hero image reset to default"); }}
+                      className="text-xs text-muted hover:text-red-500 transition-colors"
+                    >
+                      Reset to default image
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Catalogue Stats */}
               <div className="p-4 lg:p-6 bg-card border border-border rounded-[2px]">
                 <h3 className="text-sm font-medium mb-4 flex items-center gap-2">
@@ -1472,7 +1580,7 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <label className="text-xs text-muted">Shipping Regions</label>
-                    <input type="text" defaultValue="Worldwide" disabled className="w-full mt-1 px-3 py-2 bg-transparent border border-border rounded-[2px] text-sm text-muted" />
+                    <input type="text" defaultValue="Pan India" disabled className="w-full mt-1 px-3 py-2 bg-transparent border border-border rounded-[2px] text-sm text-muted" />
                   </div>
                 </div>
               </div>

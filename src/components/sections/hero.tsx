@@ -3,13 +3,15 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useSiteConfig } from "@/store/site-config";
 
 export function Hero() {
+  const { heroImage } = useSiteConfig();
   return (
     <section className="relative h-screen min-h-[700px] w-full overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=1920&h=1080&fit=crop&q=80"
+          src={heroImage}
           alt="Premium ONIXX timepiece"
           fill
           priority
