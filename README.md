@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ONIXX — Luxury Watch Store
+
+A premium e-commerce storefront for ONIXX luxury timepieces, built with Next.js, TypeScript, Tailwind CSS, and Framer Motion.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **Animations:** Framer Motion
+- **State:** Zustand (with localStorage persistence)
+- **Fonts:** Playfair Display + Inter (Google Fonts)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run tests |
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── page.tsx            # Homepage
+│   ├── layout.tsx          # Root layout
+│   ├── watches/            # Product catalog
+│   ├── collections/        # Collection pages
+│   ├── cart/               # Shopping cart
+│   ├── checkout/           # Checkout flow
+│   ├── wishlist/           # Saved items
+│   └── ...                 # Info pages (shipping, warranty, etc.)
+├── components/
+│   ├── layout/             # Navbar, Footer, Drawers, Modals
+│   ├── sections/           # Homepage sections
+│   ├── shared/             # ProductCard, Gallery, ProductInfo
+│   └── ui/                 # Button, Input, Badge, Separator
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utilities and product data
+└── store/                  # Zustand stores (cart, wishlist)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Product catalog** with category filtering, sorting, and grid toggle
+- **Product detail pages** with image gallery, specs, and add-to-cart
+- **Cart** with slide-in drawer + full page, localStorage persistence
+- **Wishlist** with persistence
+- **Search modal** with real-time filtering
+- **Checkout** with form validation and order confirmation
+- **Account & Settings** slide-in panels
+- **Mobile responsive** with hamburger navigation
+- **SEO metadata** on all pages
+- **Dark luxury theme** with gold accents and animations
+- **14 informational pages** (shipping, warranty, FAQs, size guide, etc.)
 
-## Deploy on Vercel
+## Products
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+12 luxury watches across 3 collections (Signature, Heritage, Skeleton), ranging from $3,450 to $45,000.
