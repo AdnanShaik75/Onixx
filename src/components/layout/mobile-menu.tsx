@@ -85,7 +85,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
             <div className="px-6 lg:px-8 pb-8">
               <p className="text-[10px] tracking-[2px] uppercase text-muted text-center">
-                COMPLIMENTARY WORLDWIDE SHIPPING
+                PAN INDIA SHIPPING
               </p>
             </div>
           </motion.div>

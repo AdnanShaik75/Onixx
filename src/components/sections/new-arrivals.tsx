@@ -18,7 +18,7 @@ export function NewArrivals() {
           className="text-center mb-16"
         >
           <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-            JUST LANDED
+            JUST ARRIVED
           </p>
           <h2
             className="text-4xl md:text-5xl lg:text-6xl font-semibold"

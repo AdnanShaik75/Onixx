@@ -23,8 +23,8 @@ export function Footer() {
               />
             </Link>
             <p className="text-sm text-muted leading-relaxed mb-8 max-w-[280px]">
-              Precision-crafted luxury watches for those who appreciate timeless
-              elegance, engineered by master horologists.
+              Premium watches and accessories curated for timeless style, quality,
+              and everyday confidence.
             </p>
             <div className="flex flex-wrap gap-4">
               {socialLinks.map((link) => (

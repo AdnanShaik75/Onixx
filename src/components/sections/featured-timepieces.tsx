@@ -19,17 +19,17 @@ export function FeaturedTimepieces() {
           className="text-center mb-16"
         >
           <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-            SIGNATURE PIECES
+            FEATURED COLLECTION
           </p>
           <h2
             className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6"
             style={{ fontFamily: "var(--font-heading), serif" }}
           >
-            Featured Timepieces
+            Featured Products
           </h2>
           <p className="text-sm text-muted max-w-md mx-auto">
-            Each timepiece is a masterpiece of precision engineering and timeless
-            design, crafted for those who demand nothing but the finest.
+            Explore our carefully selected collection of premium watches and
+            accessories, chosen for their style, quality, and everyday elegance.
           </p>
         </motion.div>
 

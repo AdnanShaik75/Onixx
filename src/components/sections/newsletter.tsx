@@ -38,11 +38,11 @@ export function Newsletter() {
               className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4"
               style={{ fontFamily: "var(--font-heading), serif" }}
             >
-              Welcome to the Circle
+              Welcome to the Community
             </h2>
             <p className="text-sm text-muted leading-relaxed mb-6">
-              You&apos;re now part of the ONIXX inner circle. Expect exclusive
-              access to new releases, private events, and curated content.
+              Thank you for subscribing! Stay tuned for exclusive offers and our
+              latest collections.
             </p>
             <p className="text-[10px] text-muted">
               You can unsubscribe at any time from your account settings.
@@ -67,17 +67,17 @@ export function Newsletter() {
             <Sparkles className="w-5 h-5 text-gold" />
           </div>
 
-          <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4"
-            style={{ fontFamily: "var(--font-heading), serif" }}
-          >
-            Join the ONIXX Circle
-          </h2>
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4"
+              style={{ fontFamily: "var(--font-heading), serif" }}
+            >
+              Join the ONIXX Community
+            </h2>
 
-          <p className="text-sm text-muted leading-relaxed mb-10">
-            Be the first to discover new releases, limited editions, and private
-            events. Exclusive access awaits.
-          </p>
+            <p className="text-sm text-muted leading-relaxed mb-10">
+              Subscribe to receive updates about new arrivals, exclusive offers,
+              and the latest collections.
+            </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
             <Input

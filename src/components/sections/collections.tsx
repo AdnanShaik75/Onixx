@@ -18,7 +18,7 @@ export function Collections() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-              CURATED
+              SHOP BY CATEGORY
             </p>
             <h2
               className="text-4xl md:text-5xl lg:text-6xl font-semibold"
@@ -44,7 +44,7 @@ export function Collections() {
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {COLLECTIONS.map((collection, index) => (
             <motion.div
               key={collection.id}

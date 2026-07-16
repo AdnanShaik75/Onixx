@@ -10,7 +10,7 @@ export function Hero() {
       <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=1920&h=1080&fit=crop&q=80"
-          alt="Luxury ONIXX timepiece"
+          alt="Premium ONIXX timepiece"
           fill
           priority
           sizes="100vw"
@@ -28,7 +28,7 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="text-[11px] tracking-[4px] uppercase text-gold font-medium mb-6"
           >
-            ONIXX MAISON
+            PREMIUM WATCH COLLECTION
           </motion.p>
 
           <motion.div
@@ -64,8 +64,8 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="text-sm md:text-base text-muted leading-relaxed mb-10 max-w-md"
           >
-            Precision-crafted luxury watches for those who appreciate timeless
-            elegance, engineered by master horologists.
+            Explore premium watches and carefully selected accessories designed to
+            complement every style. Discover timeless designs for every occasion.
           </motion.p>
 
           <motion.div
@@ -74,8 +74,8 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col sm:flex-row gap-4 mb-12"
           >
-            <Button variant="primary">SHOP COLLECTION</Button>
-            <Button variant="secondary">DISCOVER ONIXX</Button>
+            <Button variant="primary">SHOP NOW</Button>
+            <Button variant="secondary">EXPLORE COLLECTIONS</Button>
           </motion.div>
 
           <motion.div
@@ -84,11 +84,11 @@ export function Hero() {
             transition={{ duration: 1, delay: 1.2 }}
             className="flex items-center gap-4 text-[10px] tracking-[2px] uppercase text-muted"
           >
-            <span>SWISS MADE</span>
+            <span>PREMIUM QUALITY</span>
             <span className="text-gold/40">&#8226;</span>
-            <span>5 YEAR WARRANTY</span>
+            <span>PAN INDIA SHIPPING</span>
             <span className="text-gold/40">&#8226;</span>
-            <span>FREE SHIPPING</span>
+            <span>SECURE CHECKOUT</span>
           </motion.div>
         </div>
       </div>

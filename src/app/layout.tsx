@@ -18,21 +18,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ONIXX | Luxury Watches & Accessories",
+  title: "ONIXX | Premium Watches & Accessories",
   description:
-    "Precision-crafted luxury watches for those who appreciate timeless elegance. Swiss-made timepieces engineered by master horologists.",
+    "Discover premium watches and accessories curated for style, quality, and everyday elegance. Shop the latest collections with secure payments and Pan India shipping.",
   keywords: [
-    "luxury watches",
-    "Swiss made",
-    "premium timepieces",
+    "premium watches",
+    "men's watches",
+    "women's watches",
+    "wrist watches",
+    "accessories",
+    "leather straps",
+    "sunglasses",
     "ONIXX",
-    "automatic watches",
-    "chronograph",
   ],
   openGraph: {
-    title: "ONIXX | Luxury Watches & Accessories",
+    title: "ONIXX | Premium Watches & Accessories",
     description:
-      "Precision-crafted luxury watches for those who appreciate timeless elegance.",
+      "Discover premium watches and accessories curated for style, quality, and everyday elegance.",
     type: "website",
   },
 };

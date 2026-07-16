@@ -24,26 +24,26 @@ export function Craftsmanship() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-              CRAFTSMANSHIP
+              ABOUT ONIXX
             </p>
             <h2
               className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.05] mb-2"
               style={{ fontFamily: "var(--font-heading), serif" }}
             >
-              A Century of
+              Timeless Style.
             </h2>
             <h2
               className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.05] italic text-gold mb-8"
               style={{ fontFamily: "var(--font-heading), serif" }}
             >
-              Precision.
+              Modern Collection.
             </h2>
 
             <p className="text-sm text-muted leading-relaxed mb-12 max-w-md">
-              Every ONIXX timepiece is the culmination of over a century of
-              horological mastery. Our master watchmakers combine traditional
-              techniques with cutting-edge innovation to create watches of
-              unparalleled quality and precision.
+              ONIXX brings together premium watches and accessories selected for
+              their quality, craftsmanship, and style. Whether you&apos;re looking
+              for a classic everyday watch or a statement piece, our collection is
+              designed to suit every occasion.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -87,7 +87,7 @@ export function Craftsmanship() {
             <div className="relative aspect-[4/5] rounded-[2px] overflow-hidden border border-border">
               <Image
                 src="https://images.unsplash.com/photo-1587836374828-4dbafa74b0c2?w=800&h=1000&fit=crop&q=80"
-                alt="Watch craftsmanship detail"
+                alt="Watch detail"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
