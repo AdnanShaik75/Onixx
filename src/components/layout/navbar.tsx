@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, User, Heart, ShoppingBag, Menu, Settings, ArrowLeft } from "lucide-react";
+import { Search, User, Heart, ShoppingBag, Menu, Settings } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/data";
 import { useScrollPosition } from "@/hooks/use-scroll-position";
 import { useMobileMenu } from "@/hooks/use-mobile-menu";
@@ -18,7 +17,6 @@ import { SettingsPanel } from "./settings-panel";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
-  const router = useRouter();
   const isScrolled = useScrollPosition(50);
   const { isOpen: isMobileOpen, toggle: toggleMobile, close: closeMobile } = useMobileMenu();
   const { totalItems, openCart } = useCartStore();
@@ -44,13 +42,12 @@ export function Navbar() {
         )}
       >
         <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between px-6 lg:px-12">
-          <Link href="/" className="flex-shrink-0 group">
-            <h1
-              className="text-2xl lg:text-3xl font-heading font-semibold tracking-[4px] text-foreground group-hover:text-gold transition-colors duration-300"
-              style={{ fontFamily: "var(--font-heading), serif" }}
-            >
-              ONIXX
-            </h1>
+          <Link href="/" className="flex-shrink-0 group" aria-label="ONIXX Home">
+            <img
+              src="/Onixx/logo.svg"
+              alt="ONIXX"
+              className="h-7 lg:h-9 w-auto group-hover:opacity-80 transition-opacity duration-300"
+            />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
@@ -76,15 +73,6 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => router.back()}
-              className="hidden lg:flex items-center gap-2 h-10 px-3 text-muted hover:text-gold transition-colors duration-300"
-              title="Go back"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-[11px] tracking-[1px] uppercase">Back</span>
-            </button>
-
             <button
               onClick={() => setIsSearchOpen(true)}
               className="hidden lg:flex items-center gap-2 h-10 px-4 border border-border rounded-[2px] text-muted hover:border-gold/50 hover:text-foreground transition-all duration-300"

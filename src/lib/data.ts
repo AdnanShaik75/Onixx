@@ -38,6 +38,7 @@ export interface Product {
   isBestSeller?: boolean;
   isNewArrival?: boolean;
   isLimitedEdition?: boolean;
+  stock: number;
 }
 
 const img = (id: string, w = 600, h = 600) =>
@@ -82,6 +83,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "100m",
     caseSize: "41mm",
+    stock: 12,
   },
   {
     id: "heritage-classic",
@@ -121,6 +123,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Quartz",
     waterResistance: "50m",
     caseSize: "40mm",
+    stock: 8,
   },
   {
     id: "midnight-automatic",
@@ -160,6 +163,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "200m",
     caseSize: "42mm",
+    stock: 15,
   },
   {
     id: "sovereign-tourbillon",
@@ -199,6 +203,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Manual Wind",
     waterResistance: "30m",
     caseSize: "43mm",
+    stock: 3,
   },
   {
     id: "apex-diver",
@@ -238,6 +243,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "300m",
     caseSize: "44mm",
+    stock: 6,
   },
   {
     id: "zenith-perpetual",
@@ -277,6 +283,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "30m",
     caseSize: "42mm",
+    stock: 2,
   },
   {
     id: "noir-dress",
@@ -315,6 +322,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Quartz",
     waterResistance: "30m",
     caseSize: "39mm",
+    stock: 0,
   },
   {
     id: "chronos-aviator",
@@ -354,6 +362,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "100m",
     caseSize: "43mm",
+    stock: 20,
   },
   {
     id: "nocturne-skeleton",
@@ -393,6 +402,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "50m",
     caseSize: "41mm",
+    stock: 1,
   },
   {
     id: "emperor-grand",
@@ -432,6 +442,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Manual Wind",
     waterResistance: "30m",
     caseSize: "45mm",
+    stock: 0,
   },
   {
     id: "titan-sport",
@@ -470,6 +481,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "200m",
     caseSize: "42mm",
+    stock: 10,
   },
   {
     id: "meridian-world",
@@ -509,6 +521,7 @@ export const ALL_PRODUCTS: Product[] = [
     movement: "Automatic",
     waterResistance: "50m",
     caseSize: "41mm",
+    stock: 4,
   },
 ];
 

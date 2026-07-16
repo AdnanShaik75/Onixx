@@ -6,6 +6,7 @@ import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Separator } from "@/components/ui/separator";
+import { BackButton } from "@/components/shared/back-button";
 
 const milestones = [
   { year: "1892", title: "Founded in Geneva", desc: "Master horologist Émile ONIXX establishes the maison on Rue du Rhône, driven by a vision of precision and beauty." },
@@ -31,6 +32,7 @@ export default function StoryPage() {
       <main>
         <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
           <div className="max-w-[1400px] mx-auto">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

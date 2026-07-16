@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BackButton } from "@/components/shared/back-button";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "general", message: "" });
@@ -26,6 +27,7 @@ export default function ContactPage() {
       <main>
         <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
           <div className="max-w-[1400px] mx-auto">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

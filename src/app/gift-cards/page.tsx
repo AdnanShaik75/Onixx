@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { BackButton } from "@/components/shared/back-button";
 import { formatPrice } from "@/lib/utils";
 
 const giftCardAmounts = [41500, 83000, 207500, 415000];
@@ -22,6 +23,7 @@ export default function GiftCardsPage() {
       <main>
         <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
           <div className="max-w-[1400px] mx-auto">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

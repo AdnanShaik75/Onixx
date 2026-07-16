@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/shared/product-card";
+import { BackButton } from "@/components/shared/back-button";
 import { useWishlistStore } from "@/store/wishlist";
 
 export default function WishlistPage() {
@@ -13,6 +14,7 @@ export default function WishlistPage() {
   return (
     <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
       <div className="max-w-[1400px] mx-auto">
+        <BackButton />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

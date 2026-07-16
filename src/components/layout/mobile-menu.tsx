@@ -33,12 +33,13 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-background border-l border-border z-[70] flex flex-col"
           >
             <div className="flex items-center justify-between h-16 lg:h-[90px] px-6 border-b border-border">
-              <h2
-                className="text-xl font-semibold tracking-[3px] text-foreground"
-                style={{ fontFamily: "var(--font-heading), serif" }}
-              >
-                ONIXX
-              </h2>
+              <Link href="/" onClick={onClose} aria-label="ONIXX Home">
+                <img
+                  src="/Onixx/logo.svg"
+                  alt="ONIXX"
+                  className="h-7 w-auto"
+                />
+              </Link>
               <button
                 onClick={onClose}
                 className="flex items-center justify-center w-10 h-10 text-muted hover:text-foreground transition-colors duration-300"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,17 +22,27 @@ import {
   Search,
   Menu,
   X,
+  Lock,
+  AlertTriangle,
+  AlertCircle,
+  PackageX,
+  Boxes,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useProductStore } from "@/store/products";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ProductForm } from "@/components/admin/product-form";
 import type { Product } from "@/lib/data";
+
+const ADMIN_PASSWORD = "Onixx@2005";
+const LOW_STOCK_THRESHOLD = 5;
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", id: "dashboard" },
   { icon: Package, label: "Products", id: "products" },
+  { icon: Boxes, label: "Inventory", id: "inventory" },
   { icon: ShoppingCart, label: "Orders", id: "orders" },
   { icon: Users, label: "Customers", id: "customers" },
   { icon: Settings, label: "Settings", id: "settings" },
@@ -57,6 +67,9 @@ function OrderStatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const { items } = useCartStore();
   const { products, addProduct, updateProduct, deleteProduct, resetProducts } = useProductStore();
@@ -66,6 +79,87 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("ALL");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const inventoryStats = useMemo(() => {
+    const total = products.length;
+    const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+    const inStock = products.filter((p) => p.stock > LOW_STOCK_THRESHOLD).length;
+    const lowStock = products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length;
+    const outOfStock = products.filter((p) => p.stock === 0).length;
+    return { total, totalStock, inStock, lowStock, outOfStock };
+  }, [products]);
+
+  const lowStockProducts = useMemo(
+    () => products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD),
+    [products]
+  );
+
+  const outOfStockProducts = useMemo(
+    () => products.filter((p) => p.stock === 0),
+    [products]
+  );
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm"
+        >
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-full border border-gold/30 flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-7 h-7 text-gold" />
+            </div>
+            <h1
+              className="text-2xl font-semibold mb-2"
+              style={{ fontFamily: "var(--font-heading), serif" }}
+            >
+              ONIXX Admin
+            </h1>
+            <p className="text-sm text-muted">Enter your password to access the dashboard</p>
+          </div>
+
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <Input
+                type="password"
+                placeholder="Password"
+                value={passwordInput}
+                onChange={(e) => {
+                  setPasswordInput(e.target.value);
+                  setPasswordError(false);
+                }}
+                className={passwordError ? "border-red-500 focus:border-red-500" : ""}
+              />
+              {passwordError && (
+                <p className="text-xs text-red-500 mt-1">Incorrect password. Please try again.</p>
+              )}
+            </div>
+            <Button type="submit" variant="primary" className="w-full">
+              ACCESS DASHBOARD
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <Link href="/" className="text-xs text-muted hover:text-gold transition-colors">
+              Back to Store
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   const totalRevenue = products.reduce((sum, p) => sum + p.price, 0);
 
@@ -266,6 +360,79 @@ export default function AdminPage() {
                 ))}
               </div>
 
+              {/* Inventory Overview */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+                {[
+                  { icon: Package, label: "Total Stock", value: inventoryStats.totalStock.toString(), color: "text-foreground" },
+                  { icon: Package, label: "In Stock", value: inventoryStats.inStock.toString(), color: "text-green-500" },
+                  { icon: AlertTriangle, label: "Low Stock", value: inventoryStats.lowStock.toString(), color: inventoryStats.lowStock > 0 ? "text-yellow-500" : "text-foreground" },
+                  { icon: PackageX, label: "Out of Stock", value: inventoryStats.outOfStock.toString(), color: inventoryStats.outOfStock > 0 ? "text-red-500" : "text-foreground" },
+                ].map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.1 }}
+                    className="p-4 lg:p-6 bg-card border border-border rounded-[2px]"
+                  >
+                    <div className="flex items-center justify-between mb-3 lg:mb-4">
+                      <stat.icon className="w-4 h-4 lg:w-5 lg:h-5 text-gold" />
+                    </div>
+                    <p className={`text-lg lg:text-2xl font-semibold mb-1 ${stat.color}`}>{stat.value}</p>
+                    <p className="text-[10px] lg:text-xs text-muted">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Low Stock & Out of Stock Alerts */}
+              {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
+                <div className="space-y-4">
+                  {outOfStockProducts.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-red-500/5 border border-red-500/20 rounded-[2px]"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <PackageX className="w-4 h-4 text-red-500" />
+                        <h4 className="text-sm font-medium text-red-500">Out of Stock ({outOfStockProducts.length})</h4>
+                      </div>
+                      <div className="space-y-2">
+                        {outOfStockProducts.map((p) => (
+                          <div key={p.id} className="flex items-center justify-between text-xs">
+                            <span className="text-muted">{p.name}</span>
+                            <Button variant="secondary" className="h-6 text-[10px] px-2" onClick={() => { setEditingProduct(p); setFormOpen(true); }}>
+                              Restock
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {lowStockProducts.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-[2px]"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertCircle className="w-4 h-4 text-yellow-500" />
+                        <h4 className="text-sm font-medium text-yellow-500">Low Stock Alert ({lowStockProducts.length})</h4>
+                      </div>
+                      <div className="space-y-2">
+                        {lowStockProducts.map((p) => (
+                          <div key={p.id} className="flex items-center justify-between text-xs">
+                            <span className="text-muted">{p.name}</span>
+                            <span className="text-yellow-500 font-medium">{p.stock} left</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
               {/* Recent Orders */}
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -390,7 +557,7 @@ export default function AdminPage() {
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Category</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Collection</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Price</th>
-                      <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Rating</th>
+                      <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Stock</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -411,7 +578,17 @@ export default function AdminPage() {
                         <td className="px-6 py-4 text-xs text-muted">{product.category}</td>
                         <td className="px-6 py-4 text-xs text-muted capitalize">{product.collection}</td>
                         <td className="px-6 py-4 text-sm">{formatPrice(product.price)}</td>
-                        <td className="px-6 py-4 text-sm text-gold">{product.rating} ★</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-xs px-2 py-1 rounded-[2px] ${
+                            product.stock === 0
+                              ? "bg-red-500/10 text-red-500"
+                              : product.stock <= LOW_STOCK_THRESHOLD
+                              ? "bg-yellow-500/10 text-yellow-500"
+                              : "bg-green-500/10 text-green-500"
+                          }`}>
+                            {product.stock === 0 ? "Out of Stock" : product.stock <= LOW_STOCK_THRESHOLD ? `Low: ${product.stock}` : product.stock}
+                          </span>
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <button onClick={() => handleEdit(product)} className="p-1.5 text-muted hover:text-gold transition-colors" title="Edit">
@@ -457,7 +634,15 @@ export default function AdminPage() {
                         <div className="flex items-center gap-3 mt-2">
                           <span className="text-[10px] text-muted uppercase">{product.category}</span>
                           <span className="text-[10px] text-muted capitalize">{product.collection}</span>
-                          <span className="text-xs text-gold ml-auto">{product.rating} ★</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-[2px] ml-auto ${
+                            product.stock === 0
+                              ? "bg-red-500/10 text-red-500"
+                              : product.stock <= LOW_STOCK_THRESHOLD
+                              ? "bg-yellow-500/10 text-yellow-500"
+                              : "bg-green-500/10 text-green-500"
+                          }`}>
+                            {product.stock === 0 ? "Out of Stock" : `${product.stock} in stock`}
+                          </span>
                         </div>
                         <p className="text-sm font-medium mt-1">{formatPrice(product.price)}</p>
                       </div>
@@ -467,6 +652,168 @@ export default function AdminPage() {
                 {filteredProducts.length === 0 && (
                   <div className="py-12 text-center text-sm text-muted">No products found</div>
                 )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Inventory */}
+          {activeTab === "inventory" && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              {/* Inventory Summary Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                <div className="p-4 lg:p-6 bg-card border border-border rounded-[2px]">
+                  <p className="text-[10px] lg:text-xs text-muted uppercase tracking-wide mb-2">Total Items</p>
+                  <p className="text-2xl lg:text-3xl font-semibold">{inventoryStats.totalStock}</p>
+                </div>
+                <div className="p-4 lg:p-6 bg-card border border-green-500/20 rounded-[2px]">
+                  <p className="text-[10px] lg:text-xs text-muted uppercase tracking-wide mb-2">In Stock</p>
+                  <p className="text-2xl lg:text-3xl font-semibold text-green-500">{inventoryStats.inStock}</p>
+                  <p className="text-[10px] text-muted mt-1">products</p>
+                </div>
+                <div className="p-4 lg:p-6 bg-card border border-yellow-500/20 rounded-[2px]">
+                  <p className="text-[10px] lg:text-xs text-muted uppercase tracking-wide mb-2">Low Stock</p>
+                  <p className="text-2xl lg:text-3xl font-semibold text-yellow-500">{inventoryStats.lowStock}</p>
+                  <p className="text-[10px] text-muted mt-1">&le; {LOW_STOCK_THRESHOLD} units</p>
+                </div>
+                <div className="p-4 lg:p-6 bg-card border border-red-500/20 rounded-[2px]">
+                  <p className="text-[10px] lg:text-xs text-muted uppercase tracking-wide mb-2">Out of Stock</p>
+                  <p className="text-2xl lg:text-3xl font-semibold text-red-500">{inventoryStats.outOfStock}</p>
+                  <p className="text-[10px] text-muted mt-1">products</p>
+                </div>
+              </div>
+
+              {/* Alerts Banner */}
+              {outOfStockProducts.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-red-500/5 border border-red-500/20 rounded-[2px] flex items-start gap-3"
+                >
+                  <PackageX className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-red-500 mb-1">Out of Stock Alert</p>
+                    <p className="text-xs text-muted">
+                      {outOfStockProducts.length} {outOfStockProducts.length === 1 ? "product is" : "products are"} currently out of stock:{" "}
+                      <span className="text-foreground">{outOfStockProducts.map((p) => p.name).join(", ")}</span>
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {lowStockProducts.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-[2px] flex items-start gap-3"
+                >
+                  <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-yellow-500 mb-1">Low Stock Warning</p>
+                    <p className="text-xs text-muted">
+                      {lowStockProducts.length} {lowStockProducts.length === 1 ? "product has" : "products have"} low stock:{" "}
+                      {lowStockProducts.map((p) => (
+                        <span key={p.id}>
+                          <span className="text-foreground">{p.name}</span> ({p.stock} left)
+                        </span>
+                      )).reduce((prev, curr) => <>{prev}, {curr}</>, <></>)}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Full Inventory Table */}
+              <div>
+                <h3 className="text-base lg:text-lg font-semibold mb-4" style={{ fontFamily: "var(--font-heading), serif" }}>
+                  All Products
+                </h3>
+
+                {/* Desktop Table */}
+                <div className="hidden md:block bg-card border border-border rounded-[2px] overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Product</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Category</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Price</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Stock</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Status</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...products].sort((a, b) => a.stock - b.stock).map((product) => (
+                        <tr key={product.id} className={`border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors ${
+                          product.stock === 0 ? "bg-red-500/5" : product.stock <= LOW_STOCK_THRESHOLD ? "bg-yellow-500/5" : ""
+                        }`}>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-background rounded-[2px] overflow-hidden border border-border flex-shrink-0 relative">
+                                <Image src={product.image} alt={product.name} fill className="object-cover" />
+                              </div>
+                              <p className="text-sm font-medium">{product.name}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-xs text-muted">{product.category}</td>
+                          <td className="px-6 py-4 text-sm">{formatPrice(product.price)}</td>
+                          <td className="px-6 py-4 text-sm font-medium">{product.stock}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs px-2 py-1 rounded-[2px] ${
+                              product.stock === 0
+                                ? "bg-red-500/10 text-red-500"
+                                : product.stock <= LOW_STOCK_THRESHOLD
+                                ? "bg-yellow-500/10 text-yellow-500"
+                                : "bg-green-500/10 text-green-500"
+                            }`}>
+                              {product.stock === 0 ? "Out of Stock" : product.stock <= LOW_STOCK_THRESHOLD ? "Low Stock" : "In Stock"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Button variant="secondary" className="h-7 text-[10px] px-2" onClick={() => { setEditingProduct(product); setFormOpen(true); }}>
+                              <Pencil className="w-3 h-3 mr-1" /> Edit
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden space-y-3">
+                  {[...products].sort((a, b) => a.stock - b.stock).map((product) => (
+                    <div key={product.id} className={`p-4 bg-card border rounded-[2px] ${
+                      product.stock === 0 ? "border-red-500/20" : product.stock <= LOW_STOCK_THRESHOLD ? "border-yellow-500/20" : "border-border"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-background rounded-[2px] overflow-hidden border border-border flex-shrink-0 relative">
+                          <Image src={product.image} alt={product.name} fill className="object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{product.name}</p>
+                          <p className="text-xs text-muted">{product.category}</p>
+                        </div>
+                        <Button variant="secondary" className="h-7 text-[10px] px-2 flex-shrink-0" onClick={() => { setEditingProduct(product); setFormOpen(true); }}>
+                          Edit
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+                        <span className="text-sm">{formatPrice(product.price)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted">Stock: {product.stock}</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-[2px] ${
+                            product.stock === 0
+                              ? "bg-red-500/10 text-red-500"
+                              : product.stock <= LOW_STOCK_THRESHOLD
+                              ? "bg-yellow-500/10 text-yellow-500"
+                              : "bg-green-500/10 text-green-500"
+                          }`}>
+                            {product.stock === 0 ? "Out" : product.stock <= LOW_STOCK_THRESHOLD ? "Low" : "OK"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}

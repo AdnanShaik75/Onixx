@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Lock, Truck, Shield, CheckCircle, ArrowLeft } from "lucide-react";
+import { Lock, Truck, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { BackButton } from "@/components/shared/back-button";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 
@@ -196,13 +197,7 @@ export default function CheckoutPage() {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <Link
-            href="/cart"
-            className="inline-flex items-center gap-2 text-xs text-muted hover:text-gold transition-colors mb-6"
-          >
-            <ArrowLeft className="w-3 h-3" />
-            Back to Cart
-          </Link>
+          <BackButton />
           <h1
             className="text-4xl md:text-5xl font-semibold mb-2"
             style={{ fontFamily: "var(--font-heading), serif" }}

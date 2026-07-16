@@ -31,6 +31,7 @@ const emptyProduct: Product = {
   movement: "",
   waterResistance: "",
   caseSize: "",
+  stock: 0,
 };
 
 const categories = ["AUTOMATIC", "QUARTZ", "DIVER", "MANUAL WIND"];
@@ -82,6 +83,7 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
       originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
       rating: Number(form.rating),
       reviewCount: Number(form.reviewCount),
+      stock: Number(form.stock),
     });
   };
 
@@ -253,6 +255,20 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
                     className="mt-1"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="text-xs text-muted">Stock Quantity</label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.stock}
+                  onChange={(e) => update("stock", Number(e.target.value))}
+                  placeholder="0"
+                  className="mt-1"
+                />
+                <p className="text-[10px] text-muted mt-1">
+                  Set to 0 for out of stock. Low stock alert at 5 or fewer.
+                </p>
               </div>
             </div>
 

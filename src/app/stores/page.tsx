@@ -5,6 +5,7 @@ import { MapPin, Phone, Clock } from "lucide-react";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { BackButton } from "@/components/shared/back-button";
 
 const stores = [
   { city: "Geneva", subtitle: "Flagship", address: "Rue du Rhône 48, 1204 Geneva", phone: "+41 22 310 1234", hours: "Mon–Sat 10am–7pm, Sun 12pm–5pm" },
@@ -23,6 +24,7 @@ export default function StoresPage() {
       <main>
         <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
           <div className="max-w-[1400px] mx-auto">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

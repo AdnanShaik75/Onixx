@@ -5,11 +5,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { COLLECTIONS } from "@/lib/data";
+import { BackButton } from "@/components/shared/back-button";
 
 export default function CollectionsContent() {
   return (
     <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
       <div className="max-w-[1400px] mx-auto">
+        <BackButton />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

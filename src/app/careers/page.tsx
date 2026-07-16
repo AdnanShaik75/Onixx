@@ -6,6 +6,7 @@ import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/shared/back-button";
 
 const positions = [
   { title: "Master Watchmaker", department: "Manufacturing", location: "Geneva", type: "Full-time" },
@@ -23,6 +24,7 @@ export default function CareersPage() {
       <main>
         <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
           <div className="max-w-[1400px] mx-auto">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

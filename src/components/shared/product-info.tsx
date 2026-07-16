@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/shared/product-gallery";
+import { BackButton } from "@/components/shared/back-button";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
 import { useToast } from "@/components/ui/toast";
@@ -35,7 +36,9 @@ export function ProductInfo({ product }: ProductInfoProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+    <>
+      <BackButton />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
       <motion.div
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
@@ -211,5 +214,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
         </div>
       </motion.div>
     </div>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Separator } from "@/components/ui/separator";
+import { BackButton } from "@/components/shared/back-button";
 
 const sections = [
   { id: "collection", title: "Information We Collect", content: "We collect information you provide directly, such as your name, email, shipping address, and payment information when you make a purchase. We also automatically collect certain data about your device and browsing behavior through cookies and similar technologies." },
@@ -24,6 +25,7 @@ export default function PrivacyPage() {
       <main>
         <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
           <div className="max-w-[1400px] mx-auto">
+            <BackButton />
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

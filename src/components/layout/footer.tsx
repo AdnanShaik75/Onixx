@@ -15,12 +15,13 @@ export function Footer() {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-12 lg:py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
           <div>
-            <h3
-              className="text-xl font-semibold tracking-[4px] text-foreground mb-6"
-              style={{ fontFamily: "var(--font-heading), serif" }}
-            >
-              ONIXX
-            </h3>
+            <Link href="/" aria-label="ONIXX Home" className="inline-block mb-6">
+              <img
+                src="/Onixx/logo.svg"
+                alt="ONIXX"
+                className="h-8 w-auto"
+              />
+            </Link>
             <p className="text-sm text-muted leading-relaxed mb-8 max-w-[280px]">
               Precision-crafted luxury watches for those who appreciate timeless
               elegance, engineered by master horologists.

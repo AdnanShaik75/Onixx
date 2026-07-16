@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Minus, Plus, X, ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { BackButton } from "@/components/shared/back-button";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 
@@ -15,7 +16,9 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
-        <div className="max-w-[1400px] mx-auto text-center py-24">
+        <div className="max-w-[1400px] mx-auto">
+          <BackButton />
+          <div className="text-center py-24">
           <ShoppingBag className="w-16 h-16 text-border mx-auto mb-6" />
           <h1
             className="text-3xl md:text-4xl font-semibold mb-4"
@@ -31,6 +34,7 @@ export default function CartPage() {
             <Button variant="primary">SHOP COLLECTION</Button>
           </Link>
         </div>
+        </div>
       </section>
     );
   }
@@ -38,6 +42,7 @@ export default function CartPage() {
   return (
     <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
       <div className="max-w-[1400px] mx-auto">
+        <BackButton />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { SlidersHorizontal, Grid3X3, LayoutGrid } from "lucide-react";
 import { useProductStore } from "@/store/products";
 import { ProductCard } from "@/components/shared/product-card";
+import { BackButton } from "@/components/shared/back-button";
 import { Separator } from "@/components/ui/separator";
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "newest" | "rating";
@@ -60,6 +61,7 @@ export function WatchesContent() {
   return (
     <section className="pt-32 lg:pt-40 pb-24 lg:pb-32 px-6 lg:px-12">
       <div className="max-w-[1400px] mx-auto">
+        <BackButton />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
