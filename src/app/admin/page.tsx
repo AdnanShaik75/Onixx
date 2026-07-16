@@ -18,7 +18,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  RotateCcw,
   Search,
   Menu,
   X,
@@ -126,8 +125,8 @@ export default function AdminPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const { items } = useCartStore();
-  const { products, addProduct, updateProduct, deleteProduct, resetProducts } = useProductStore();
-  const { orders, updateStatus, resetOrders } = useOrderStore();
+  const { products, addProduct, updateProduct, deleteProduct } = useProductStore();
+  const { orders, updateStatus } = useOrderStore();
   const { entries: activityEntries, addEntry } = useActivityStore();
   const { heroImage, heroImageType, setHeroImage, resetHeroImage } = useSiteConfig();
   const [formOpen, setFormOpen] = useState(false);
@@ -836,9 +835,6 @@ export default function AdminPage() {
                   </select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="secondary" onClick={resetProducts} className="text-xs">
-                    <RotateCcw className="w-3 h-3 mr-1" /> Reset
-                  </Button>
                   <Button variant="primary" onClick={handleAdd}>
                     <Plus className="w-4 h-4 mr-1" /> ADD
                   </Button>
@@ -1615,15 +1611,7 @@ export default function AdminPage() {
                 <h3 className="text-sm font-medium mb-4 flex items-center gap-2 text-red-500">
                   <Shield className="w-4 h-4" /> Danger Zone
                 </h3>
-                <p className="text-xs text-muted mb-4">These actions are irreversible. Please be certain before proceeding.</p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button variant="secondary" onClick={() => { resetProducts(); showToast("Products reset to defaults"); }} className="text-xs border-red-500/20 hover:bg-red-500/5 hover:text-red-500">
-                    <RefreshCw className="w-3 h-3 mr-1" /> Reset Products
-                  </Button>
-                  <Button variant="secondary" onClick={() => { resetOrders(); showToast("Orders reset to defaults"); }} className="text-xs border-red-500/20 hover:bg-red-500/5 hover:text-red-500">
-                    <RefreshCw className="w-3 h-3 mr-1" /> Reset Orders
-                  </Button>
-                </div>
+                <p className="text-xs text-muted">These actions are irreversible. Please be certain before proceeding.</p>
               </div>
             </motion.div>
           )}
