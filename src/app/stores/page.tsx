@@ -8,12 +8,9 @@ import { Footer } from "@/components/layout/footer";
 import { BackButton } from "@/components/shared/back-button";
 
 const stores = [
-  { city: "Geneva", subtitle: "Flagship", address: "Rue du Rhône 48, 1204 Geneva", phone: "+41 22 310 1234", hours: "Mon–Sat 10am–7pm, Sun 12pm–5pm" },
-  { city: "New York", subtitle: "Fifth Avenue", address: "712 Fifth Avenue, 10th Floor, New York, NY 10019", phone: "+1 (212) 555-0199", hours: "Mon–Sat 10am–8pm, Sun 11am–6pm" },
-  { city: "Tokyo", subtitle: "Ginza", address: "4-6-16 Ginza, Chuo-ku, Tokyo 104-0061", phone: "+81 3-5555-0188", hours: "Mon–Sat 11am–8pm, Sun 11am–7pm" },
-  { city: "London", subtitle: "Bond Street", address: "141 New Bond Street, London W1S 2BS", phone: "+44 20 7555 0177", hours: "Mon–Sat 10am–7pm, Sun 12pm–5pm" },
-  { city: "Dubai", subtitle: "The Dubai Mall", address: "Financial Center Rd, Dubai, UAE", phone: "+971 4 555 0166", hours: "Sat–Thu 10am–12am, Fri 2pm–12am" },
-  { city: "Hong Kong", subtitle: "Tsim Sha Tsui", address: "18 Salisbury Road, Tsim Sha Tsui, Hong Kong", phone: "+852 2555 0155", hours: "Mon–Sat 10:30am–8:30pm, Sun 11am–8pm" },
+  { city: "Online Store", subtitle: "Available Nationwide", address: "Shop from anywhere in India at onixx.com", phone: "+91 98765 43210", hours: "Available 24/7 online" },
+  { city: "Customer Support", subtitle: "We're Here to Help", address: "Reach us via email, phone, or live chat", phone: "support@onixx.com", hours: "Mon–Sat, 10am–7pm IST" },
+  { city: "Warehouse", subtitle: "Order Fulfillment", address: "Mumbai, Maharashtra, India", phone: "—", hours: "Orders dispatched Mon–Sat" },
 ];
 
 export default function StoresPage() {
@@ -32,17 +29,17 @@ export default function StoresPage() {
               className="text-center mb-16"
             >
               <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-                FIND A STORE
+                CONNECT WITH US
               </p>
               <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-4"
                 style={{ fontFamily: "var(--font-heading), serif" }}
               >
-                Our Boutiques
+                Where to Find Us
               </h1>
               <p className="text-sm text-muted max-w-md mx-auto">
-                Visit an ONIXX boutique for a personalized experience. Our
-                specialists will guide you through our collection.
+                ONIXX is an online-first store serving customers across India. Browse
+                our collection from anywhere, anytime.
               </p>
             </motion.div>
 
@@ -82,7 +79,7 @@ export default function StoresPage() {
                     href="#"
                     className="inline-block mt-6 text-xs tracking-[1px] uppercase text-gold hover:text-gold-hover transition-colors"
                   >
-                    Get Directions &rarr;
+                    Learn More &rarr;
                   </a>
                 </motion.div>
               ))}

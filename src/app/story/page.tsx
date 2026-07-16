@@ -9,19 +9,19 @@ import { Separator } from "@/components/ui/separator";
 import { BackButton } from "@/components/shared/back-button";
 
 const milestones = [
-  { year: "1892", title: "Founded in Geneva", desc: "Master horologist Émile ONIXX establishes the maison on Rue du Rhône, driven by a vision of precision and beauty." },
-  { year: "1920", title: "First Automatic Movement", desc: "ONIXX unveils the Caliber A01, one of the earliest self-winding movements, earning recognition from the Geneva Observatory." },
-  { year: "1955", title: "The Chronograph Era", desc: "Introduction of the column-wheel chronograph cementing ONIXX's reputation in complication watchmaking." },
-  { year: "1980", title: "Skeleton Collection", desc: "The Skeleton collection debuts, showcasing the art of open-worked movements and hand-finished bridges." },
-  { year: "2010", title: "Modern Renaissance", desc: "A new generation of watchmakers brings contemporary design while honoring 118 years of tradition." },
-  { year: "2024", title: "The Future", desc: "ONIXX continues to push boundaries with in-house tourbillons, perpetual calendars, and sustainable practices." },
+  { year: "2020", title: "Founded in India", desc: "ONIXX is established with a clear vision — to bring premium watches and accessories to Indian customers through a seamless online experience." },
+  { year: "2021", title: "Growing Collection", desc: "Expanded our catalogue to include over 50 carefully selected watches across classic, chronograph, and smart categories." },
+  { year: "2022", title: "Pan India Delivery", desc: "Rolled out secure, insured delivery across all major cities and towns in India, making premium watches accessible nationwide." },
+  { year: "2023", title: "Accessories Launch", desc: "Introduced a curated range of accessories including leather straps, sunglasses, and watch winders to complement our watch collection." },
+  { year: "2024", title: "New Collections", desc: "Launched our signature collections — Classic, Chronograph, and Smart — each designed to suit different lifestyles and occasions." },
+  { year: "2025", title: "Looking Ahead", desc: "Continuing to expand our catalogue, improve the shopping experience, and bring you the best in watches and accessories." },
 ];
 
 const values = [
-  { icon: Compass, title: "Innovation", desc: "Pushing the boundaries of mechanical watchmaking while respecting centuries of tradition." },
-  { icon: Gem, title: "Craftsmanship", desc: "Every component hand-finished to the highest standards of Swiss haute horlogerie." },
-  { icon: Clock, title: "Precision", desc: "COSC-certified chronometers delivering accuracy within -4/+6 seconds per day." },
-  { icon: Award, title: "Legacy", desc: "Over 130 years of continuous innovation, with each generation building on the last." },
+  { icon: Compass, title: "Curated Selection", desc: "Every product in our catalogue is handpicked for quality, design, and value." },
+  { icon: Gem, title: "Premium Quality", desc: "We partner with trusted brands and suppliers to bring you watches that meet high standards." },
+  { icon: Clock, title: "Transparent Pricing", desc: "No hidden fees. What you see is what you pay, with secure checkout and clear policies." },
+  { icon: Award, title: "Customer First", desc: "From browsing to delivery, every step is designed to give you a smooth, hassle-free experience." },
 ];
 
 export default function StoryPage() {
@@ -40,7 +40,7 @@ export default function StoryPage() {
               className="text-center mb-16"
             >
               <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-                THE ONIXX JOURNEY
+                OUR JOURNEY
               </p>
               <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-4"
@@ -49,8 +49,8 @@ export default function StoryPage() {
                 Our Story
               </h1>
               <p className="text-sm text-muted max-w-lg mx-auto">
-                Since 1892, ONIXX has been at the forefront of Swiss watchmaking,
-                blending heritage craftsmanship with forward-thinking design.
+                ONIXX is a premium online destination for watches and accessories,
+                curated for quality, style, and everyday elegance.
               </p>
             </motion.div>
 
@@ -94,7 +94,7 @@ export default function StoryPage() {
                 Our Values
               </h2>
               <p className="text-sm text-muted max-w-md mx-auto">
-                The principles that guide every timepiece we create.
+                The values that drive everything we do.
               </p>
             </div>
 

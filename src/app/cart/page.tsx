@@ -27,8 +27,8 @@ export default function CartPage() {
             Your Bag is Empty
           </h1>
           <p className="text-sm text-muted mb-8 max-w-md mx-auto">
-            Discover our collection of luxury timepieces crafted with precision
-            and timeless elegance.
+            Discover our collection of premium watches and accessories, curated for
+            style and quality.
           </p>
           <Link href="/watches">
             <Button variant="primary">SHOP COLLECTION</Button>
@@ -157,7 +157,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted">Shipping</span>
-                  <span className="text-gold">Complimentary</span>
+                  <span className="text-gold">Free</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted">Tax</span>

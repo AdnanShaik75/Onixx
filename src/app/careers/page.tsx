@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/shared/back-button";
 
 const positions = [
-  { title: "Master Watchmaker", department: "Manufacturing", location: "Geneva", type: "Full-time" },
-  { title: "Design Engineer", department: "R&D", location: "Geneva", type: "Full-time" },
-  { title: "Retail Manager", department: "Retail", location: "New York", type: "Full-time" },
-  { title: "Marketing Director", department: "Marketing", location: "Geneva", type: "Full-time" },
-  { title: "Customer Experience Lead", department: "Client Services", location: "Remote", type: "Full-time" },
+  { title: "Customer Support Executive", department: "Client Services", location: "Remote", type: "Full-time" },
+  { title: "Content Writer", department: "Marketing", location: "Remote", type: "Full-time" },
+  { title: "Social Media Manager", department: "Marketing", location: "Remote", type: "Full-time" },
+  { title: "Order Fulfillment Associate", department: "Operations", location: "Mumbai", type: "Full-time" },
+  { title: "UI/UX Designer", department: "Product", location: "Remote", type: "Full-time" },
 ];
 
 export default function CareersPage() {
@@ -41,17 +41,17 @@ export default function CareersPage() {
                 Careers
               </h1>
               <p className="text-sm text-muted max-w-lg mx-auto">
-                Become part of a legacy spanning over 130 years. We&apos;re looking for
-                passionate individuals who share our commitment to excellence.
+                We&apos;re building a team of passionate people who believe in making
+                premium watches and accessories accessible to everyone in India.
               </p>
             </motion.div>
 
             <div className="max-w-3xl mx-auto mb-16">
               <p className="text-sm text-muted leading-relaxed text-center mb-12">
-                At ONIXX, every team member plays a role in preserving and advancing
-                the art of Swiss watchmaking. We offer competitive compensation,
-                comprehensive benefits, and the opportunity to work with some of the
-                most talented craftspeople in the world.
+                At ONIXX, every team member contributes to creating a seamless shopping
+                experience for our customers. We offer competitive compensation, a
+                flexible work environment, and the opportunity to grow with a fast-paced
+                e-commerce brand.
               </p>
 
               <div className="space-y-4">

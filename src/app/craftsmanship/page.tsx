@@ -11,31 +11,31 @@ import { BackButton } from "@/components/shared/back-button";
 const pillars = [
   {
     icon: Gem,
-    title: "The Movement",
-    desc: "Every ONIXX caliber is designed and assembled in-house in our Geneva manufacture. Our movements are COSC-certified chronometers, achieving accuracy within -4/+6 seconds per day. Each undergoes 500 hours of testing before leaving the workshop.",
+    title: "Curated for Quality",
+    desc: "Every watch and accessory in our catalogue is carefully selected from trusted brands and suppliers. We evaluate each product for build quality, design, and value before it reaches our store.",
   },
   {
     icon: Settings,
-    title: "The Case",
-    desc: "Our cases are machined from solid blocks of precious metals and advanced alloys. Each undergoes 12 separate finishing processes — from mirror polishing to satin brushing — by artisans with decades of experience.",
+    title: "Verified Products",
+    desc: "We work directly with authorized distributors and brands to ensure authenticity. Each product undergoes quality checks before dispatch to maintain the standards our customers expect.",
   },
   {
     icon: Eye,
-    title: "The Dial",
-    desc: "Guilloche patterns are hand-engraved using centuries-old rose engines. Grand Feu enamel dials require up to 40 firings at 800°C. Every index and marker is individually applied and aligned by hand.",
+    title: "Detailed Descriptions",
+    desc: "We provide comprehensive specifications, high-resolution images, and honest descriptions for every product. Our goal is to help you make informed decisions from the comfort of your home.",
   },
   {
     icon: FlaskConical,
-    title: "Quality Control",
-    desc: "Each timepiece passes through 200+ quality checkpoints during assembly. We conduct 500 hours of simulated wear testing, water resistance verification, and precision calibration before final approval.",
+    title: "Quality Assurance",
+    desc: "From secure packaging to insured delivery, every step is designed to ensure your order arrives in perfect condition. Our support team is always available to assist with any concerns.",
   },
 ];
 
 const stats = [
-  { value: "130+", label: "Years of Tradition" },
-  { value: "200+", label: "Components Per Watch" },
-  { value: "500", label: "Hours of Testing" },
-  { value: "200+", label: "Quality Checkpoints" },
+  { value: "500+", label: "Products Listed" },
+  { value: "50+", label: "Cities Delivered" },
+  { value: "10K+", label: "Happy Customers" },
+  { value: "4.8", label: "Average Rating" },
 ];
 
 export default function CraftsmanshipPage() {
@@ -54,17 +54,16 @@ export default function CraftsmanshipPage() {
               className="text-center mb-16"
             >
               <p className="text-[11px] tracking-[3px] uppercase text-gold font-medium mb-4">
-                THE ART OF WATCHMAKING
+                WHAT WE DO
               </p>
               <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-4"
                 style={{ fontFamily: "var(--font-heading), serif" }}
               >
-                Craftsmanship
+                Our Commitment
               </h1>
               <p className="text-sm text-muted max-w-lg mx-auto">
-                At ONIXX, we believe a watch is more than a timekeeping device.
-                It is a work of art, engineered with precision and finished by hand.
+                At ONIXX, we believe everyone deserves access to premium watches and accessories. We focus on curating quality products, providing honest information, and delivering a seamless shopping experience.
               </p>
             </motion.div>
 
@@ -128,14 +127,14 @@ export default function CraftsmanshipPage() {
                 className="text-2xl md:text-3xl font-semibold mb-4"
                 style={{ fontFamily: "var(--font-heading), serif" }}
               >
-                Visit Our Manufacture
+                Get in Touch
               </h2>
               <p className="text-sm text-muted leading-relaxed mb-6">
-                Experience the art of ONIXX firsthand. Book a private tour of our
-                Geneva manufacture and witness master watchmakers at work.
+                Have questions about our products or policies? Our team is here to
+                help. Reach out to us anytime and we&apos;ll get back to you within 24 hours.
               </p>
               <p className="text-xs text-muted">
-                Tours available by appointment. Contact our concierge team to arrange your visit.
+                Contact us at support@onixx.com or through our Contact page.
               </p>
             </motion.div>
           </div>

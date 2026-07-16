@@ -32,7 +32,7 @@ export default function WishlistPage() {
           </h1>
           <p className="text-sm text-muted max-w-md mx-auto">
             Timepieces you&apos;ve saved for later — your personal collection of
-            desired luxury.
+            desired watches.
           </p>
         </motion.div>
 

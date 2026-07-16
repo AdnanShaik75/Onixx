@@ -19,27 +19,27 @@ const faqs = [
   },
   {
     q: "How long does shipping take?",
-    a: "Domestic orders ship within 3–5 business days. International orders typically arrive within 5–10 business days. Express shipping (1–2 business days) is available at checkout for an additional fee. All shipments are fully insured and require signature upon delivery.",
+    a: "Standard shipping across India takes 5–7 business days. Express shipping (2–3 business days) is available at checkout for select cities. All shipments are fully insured and require signature upon delivery.",
   },
   {
     q: "What is your return policy?",
-    a: "We offer a 30-day return policy on all unworn items in original packaging. Simply contact our concierge team to initiate a return. Refunds are processed within 5–7 business days of receiving the returned item. Personalized or engraved items cannot be returned.",
+    a: "We offer a 7-day return policy on all unworn items in original packaging. Simply contact our support team to initiate a return. Refunds are processed within 5–7 business days of receiving the returned item. Personalized or engraved items cannot be returned.",
   },
   {
-    q: "How does the warranty work?",
-    a: "Every ONIXX watch comes with a 5-year international warranty covering manufacturing defects, movement issues, and water resistance. The warranty is automatically registered at the time of purchase. To make a claim, contact us with your order number and a description of the issue.",
+    q: "How do I track my order?",
+    a: "Once your order is shipped, you'll receive a tracking link via email and SMS. You can also track your order from your account dashboard. For any issues, contact our support team with your order number.",
   },
   {
-    q: "How do I find my watch size?",
-    a: "Visit our Size Guide page for detailed instructions on measuring your wrist. As a general rule: 36–40mm cases suit wrists under 6.5 inches, 40–44mm suits 6.5–7.5 inches, and 44mm+ suits wrists over 7.5 inches. Our boutiques also offer complimentary sizing.",
+    q: "Do you offer cash on delivery?",
+    a: "Cash on delivery is available for select pin codes across India. You can check availability at checkout by entering your delivery address. Prepaid orders are processed faster.",
   },
   {
     q: "How should I care for my watch?",
-    a: "Avoid exposure to extreme temperatures,磁场, and chemicals. Clean your watch regularly with a soft cloth. For water-resistant models, have the seals tested annually. We recommend servicing your mechanical watch every 3–5 years at an authorized ONIXX service center.",
+    a: "Avoid exposure to extreme temperatures, magnets, and chemicals. Clean your watch regularly with a soft cloth. For water-resistant models, have the seals tested annually. We recommend servicing your mechanical watch every 3–5 years.",
   },
   {
     q: "Do you offer engraving?",
-    a: "Yes, we offer complimentary engraving on select models. Engraved pieces are personalized and cannot be returned. Engraving adds 2–3 business days to the processing time. Contact our concierge for available engraving options.",
+    a: "Yes, we offer engraving on select models. Engraved pieces are personalized and cannot be returned. Engraving adds 2–3 business days to the processing time. Contact our support team for available engraving options.",
   },
 ];
 

@@ -54,7 +54,8 @@ export function CartDrawer() {
                     Your shopping bag is empty
                   </p>
                   <p className="text-xs text-muted/60">
-                    Discover our collection of luxury timepieces
+                    Discover our collection of premium watches and
+                    accessories
                   </p>
                 </div>
               ) : (

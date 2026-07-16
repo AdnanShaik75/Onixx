@@ -30,7 +30,7 @@ export function NewArrivalsContent() {
           </h1>
           <p className="text-sm text-muted max-w-md mx-auto">
             Be the first to discover our latest additions — fresh designs and
-            innovative complications from our master watchmakers.
+            innovative styles curated for the modern enthusiast.
           </p>
         </motion.div>
 

@@ -51,8 +51,8 @@ export default function WarrantyPage() {
                 Warranty
               </h1>
               <p className="text-sm text-muted max-w-md mx-auto">
-                Every ONIXX timepiece is backed by our comprehensive 5-year
-                international warranty.
+                We stand behind the quality of our products. Here&apos;s what you can
+                expect from ONIXX.
               </p>
             </motion.div>
 
@@ -66,11 +66,10 @@ export default function WarrantyPage() {
               </h2>
                 <div className="space-y-4">
                   {[
-                    "Manufacturing defects in materials and workmanship",
-                    "Movement malfunction under normal use",
-                    "Water resistance as specified for your model",
-                    "Crystal defects (cracking without impact)",
-                    "Bracelet or strap defects under normal wear",
+                    "Products received in damaged or defective condition",
+                    "Incorrect items shipped",
+                    "Products not matching the description on our website",
+                    "Quality issues reported within 7 days of delivery",
                   ].map((item) => (
                     <div key={item} className="flex gap-3">
                       <CheckCircle className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
@@ -89,11 +88,11 @@ export default function WarrantyPage() {
                 </h2>
                 <div className="space-y-4">
                   {[
-                    "Accidental damage (drops, impacts, scratches)",
-                    "Damage from unauthorized service or modifications",
-                    "Normal wear and tear (scratches, patina)",
-                    "Water damage on non-diver models",
-                    "Loss or theft",
+                    "Normal wear and tear from regular use",
+                    "Damage caused by accidents or misuse",
+                    "Issues reported after 7 days of delivery",
+                    "Products damaged due to unauthorized repairs or modifications",
+                    "Cosmetic damage that does not affect functionality",
                   ].map((item) => (
                     <div key={item} className="flex gap-3">
                       <span className="w-4 h-4 flex items-center justify-center text-muted flex-shrink-0 mt-0.5">
@@ -114,12 +113,12 @@ export default function WarrantyPage() {
                 </h2>
                 <div className="space-y-4 mb-8">
                   {[
-                    "Contact our concierge team with your order number",
-                    "Describe the issue and provide photos if applicable",
-                    "Receive a prepaid shipping label for your watch",
-                    "Our watchmakers will inspect and repair your timepiece",
-                    "Fully serviced watch returned within 2–4 weeks",
-                  ].map((item, i) => (
+                  "Contact our support team with your order number",
+                  "Describe the issue and share photos if applicable",
+                  "Our team will review and respond within 24 hours",
+                  "If eligible, we'll arrange a replacement or refund",
+                  "Refunds are processed within 5–7 business days",
+                ].map((item, i) => (
                     <div key={i} className="flex gap-3">
                       <span className="text-gold font-medium text-sm">{i + 1}.</span>
                       <span className="text-sm text-muted">{item}</span>
@@ -133,7 +132,7 @@ export default function WarrantyPage() {
                   className="text-2xl font-semibold mb-6"
                   style={{ fontFamily: "var(--font-heading), serif" }}
                 >
-                  Register Your Warranty
+                  Need Help?
                 </h2>
                 {registered ? (
                   <motion.div
@@ -144,7 +143,7 @@ export default function WarrantyPage() {
                     <Shield className="w-10 h-10 text-gold mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">Registration Complete</h3>
                     <p className="text-sm text-muted">
-                      Your warranty has been registered. You&apos;ll receive a confirmation email shortly.
+                      Your request has been received. Our team will get back to you within 24 hours.
                     </p>
                   </motion.div>
                 ) : (
@@ -163,26 +162,21 @@ export default function WarrantyPage() {
                       required
                     />
                     <Input
-                      placeholder="Watch model (e.g., Royal Chronograph)"
-                      value={form.model}
-                      onChange={(e) => setForm({ ...form, model: e.target.value })}
-                      required
-                    />
-                    <Input
-                      placeholder="Serial number"
+                      placeholder="Order number"
                       value={form.serial}
                       onChange={(e) => setForm({ ...form, serial: e.target.value })}
                       required
                     />
-                    <Input
-                      type="date"
-                      placeholder="Purchase date"
-                      value={form.purchaseDate}
-                      onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })}
+                    <textarea
+                      placeholder="Describe your issue..."
+                      rows={4}
+                      value={form.model}
+                      onChange={(e) => setForm({ ...form, model: e.target.value })}
                       required
+                      className="w-full px-3 py-2 bg-transparent border border-border rounded-[2px] text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-gold/50 resize-none"
                     />
                     <Button type="submit" variant="primary" className="w-full">
-                      REGISTER WARRANTY
+                      SUBMIT REQUEST
                     </Button>
                   </form>
                 )}

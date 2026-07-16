@@ -50,19 +50,19 @@ export default function ShippingPage() {
                   <div className="flex gap-4">
                     <Globe className="w-5 h-5 text-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-sm font-medium mb-1">Worldwide Complimentary Shipping</h3>
+                      <h3 className="text-sm font-medium mb-1">Pan India Free Shipping</h3>
                       <p className="text-sm text-muted leading-relaxed">
-                        Every ONIXX timepiece includes complimentary insured shipping to
-                        destinations worldwide. All shipments require signature upon delivery.
+                        Every ONIXX order includes free insured shipping to
+                        addresses across India. All shipments require signature upon delivery.
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-4">
                     <Truck className="w-5 h-5 text-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-sm font-medium mb-1">Domestic (3–5 Business Days)</h3>
+                      <h3 className="text-sm font-medium mb-1">Standard (5–7 Business Days)</h3>
                       <p className="text-sm text-muted leading-relaxed">
-                        Standard domestic shipping via FedEx. Tracking information is
+                        Standard domestic shipping. Tracking information is
                         provided within 24 hours of dispatch.
                       </p>
                     </div>
@@ -70,18 +70,17 @@ export default function ShippingPage() {
                   <div className="flex gap-4">
                     <Truck className="w-5 h-5 text-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-sm font-medium mb-1">International (5–10 Business Days)</h3>
+                      <h3 className="text-sm font-medium mb-1">Express (2–3 Business Days)</h3>
                       <p className="text-sm text-muted leading-relaxed">
-                        International shipments are handled by DHL Express with full
-                        insurance and real-time tracking. Customs duties may apply depending
-                        on your country.
+                        Need it faster? Select express shipping at checkout for an
+                        additional fee. Available for select cities.
                       </p>
                     </div>
                   </div>
                   <div className="flex gap-4">
                     <Truck className="w-5 h-5 text-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-sm font-medium mb-1">Express Shipping (1–2 Business Days)</h3>
+                      <h3 className="text-sm font-medium mb-1">Express Shipping (2–3 Business Days)</h3>
                       <p className="text-sm text-muted leading-relaxed">
                         Need it faster? Select express shipping at checkout for an
                         additional fee. Available for most destinations.
@@ -106,10 +105,10 @@ export default function ShippingPage() {
                   <div className="flex gap-4">
                     <RotateCcw className="w-5 h-5 text-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-sm font-medium mb-1">30-Day Return Policy</h3>
+                      <h3 className="text-sm font-medium mb-1">7-Day Return Policy</h3>
                       <p className="text-sm text-muted leading-relaxed">
-                        We want you to love your ONIXX timepiece. If you&apos;re not completely
-                        satisfied, return your unworn watch within 30 days for a full refund.
+                        We want you to love your ONIXX purchase. If you&apos;re not completely
+                        satisfied, return your unworn item within 7 days for a full refund.
                       </p>
                     </div>
                   </div>
@@ -132,7 +131,7 @@ export default function ShippingPage() {
                 <ol className="space-y-3 text-sm text-muted">
                   <li className="flex gap-3">
                     <span className="text-gold font-medium">1.</span>
-                    Contact our concierge team with your order number
+                    Contact our support team with your order number
                   </li>
                   <li className="flex gap-3">
                     <span className="text-gold font-medium">2.</span>

@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { WatchesContent } from "@/components/sections/watches-content";
 
 export const metadata: Metadata = {
-  title: "All Watches | ONIXX Luxury Timepieces",
+  title: "All Watches | ONIXX",
   description:
-    "Browse our complete collection of luxury watches. Automatic, quartz, diver, and manual wind timepieces.",
+    "Browse our complete collection of watches. Automatic, quartz, and more.",
   openGraph: {
-    title: "All Watches | ONIXX Luxury Timepieces",
+    title: "All Watches | ONIXX",
     description:
-      "Browse our complete collection of luxury watches. Automatic, quartz, diver, and manual wind timepieces.",
+      "Browse our complete collection of watches. Automatic, quartz, and more.",
   },
 };
 

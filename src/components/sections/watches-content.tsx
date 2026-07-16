@@ -78,8 +78,8 @@ export function WatchesContent() {
             All Watches
           </h1>
           <p className="text-sm text-muted max-w-md mx-auto">
-            Discover our complete range of luxury timepieces, each crafted with
-            unwavering precision and timeless design.
+            Discover our complete range of premium watches, curated with
+            quality and style.
           </p>
         </motion.div>
 

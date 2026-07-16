@@ -40,8 +40,8 @@ export default function GiftCardsPage() {
                 Gift Cards
               </h1>
               <p className="text-sm text-muted max-w-md mx-auto">
-                Give the gift of luxury. Let them choose their perfect timepiece
-                from our curated collection.
+                Give the gift of choice. Let them pick their perfect ONIXX piece
+                from our collection.
               </p>
             </motion.div>
 

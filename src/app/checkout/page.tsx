@@ -321,7 +321,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted">Shipping</span>
-                    <span className="text-gold">Complimentary</span>
+                    <span className="text-gold">Free</span>
                   </div>
                 </div>
 
@@ -346,11 +346,11 @@ export default function CheckoutPage() {
                 <div className="space-y-3 pt-4 border-t border-border">
                   <div className="flex items-center gap-3 text-xs text-muted">
                     <Truck className="w-4 h-4 text-gold flex-shrink-0" />
-                    <span>Complimentary worldwide shipping</span>
+                    <span>Pan India shipping</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted">
                     <Shield className="w-4 h-4 text-gold flex-shrink-0" />
-                    <span>5 year international warranty</span>
+                    <span>Quality assured products</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted">
                     <Lock className="w-4 h-4 text-gold flex-shrink-0" />

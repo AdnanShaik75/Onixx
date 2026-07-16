@@ -14,7 +14,7 @@ const sections = [
   { id: "transfers", title: "International Transfers", content: "Your data may be processed in countries outside your residence. We ensure appropriate safeguards are in place for international transfers, including standard contractual clauses where required." },
   { id: "rights", title: "Your Rights", content: "You have the right to access, correct, delete, or port your personal data. You can also opt out of marketing communications at any time. To exercise these rights, contact our privacy team at privacy@onixx.com." },
   { id: "retention", title: "Data Retention", content: "We retain your information for as long as necessary to provide services and comply with legal obligations. Purchase records are retained for 7 years. Marketing preferences are maintained until you unsubscribe." },
-  { id: "contact", title: "Contact Us", content: "For privacy-related inquiries, contact our Data Protection Officer at privacy@onixx.com or write to: ONIXX SA, Data Protection, Rue du Rhône 48, 1204 Geneva, Switzerland." },
+  { id: "contact", title: "Contact Us", content: "For privacy-related inquiries, contact our privacy team at privacy@onixx.com or write to: ONIXX, Data Protection, Mumbai, Maharashtra, India." },
 ];
 
 export default function PrivacyPage() {

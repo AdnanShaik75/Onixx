@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { NewArrivalsContent } from "@/components/sections/new-arrivals-content";
 
 export const metadata: Metadata = {
-  title: "New Arrivals | ONIXX Luxury Watches",
+  title: "New Arrivals | ONIXX",
   description:
-    "Discover the latest additions to the ONIXX collection. Fresh designs and innovative complications from our master watchmakers.",
+    "Discover the latest additions to the ONIXX collection. Fresh designs and innovative styles.",
   openGraph: {
-    title: "New Arrivals | ONIXX Luxury Watches",
+    title: "New Arrivals | ONIXX",
     description:
       "Discover the latest additions to the ONIXX collection.",
   },

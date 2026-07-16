@@ -194,21 +194,21 @@ export function ProductInfo({ product }: ProductInfoProps) {
             <Truck className="w-5 h-5 text-gold" />
             <div>
               <p className="text-xs font-medium">Free Shipping</p>
-              <p className="text-[10px] text-muted">Worldwide</p>
+              <p className="text-[10px] text-muted">Pan India</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 text-gold" />
             <div>
-              <p className="text-xs font-medium">5 Year Warranty</p>
-              <p className="text-[10px] text-muted">International</p>
+              <p className="text-xs font-medium">Quality Assured</p>
+              <p className="text-[10px] text-muted">Verified products</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <RotateCcw className="w-5 h-5 text-gold" />
             <div>
-              <p className="text-xs font-medium">30 Day Returns</p>
-              <p className="text-[10px] text-muted">No questions</p>
+              <p className="text-xs font-medium">7 Day Returns</p>
+              <p className="text-[10px] text-muted">Easy returns</p>
             </div>
           </div>
         </div>

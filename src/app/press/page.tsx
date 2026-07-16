@@ -9,22 +9,22 @@ import { BackButton } from "@/components/shared/back-button";
 
 const pressReleases = [
   {
-    date: "January 15, 2024",
-    title: "ONIXX Launches Revolutionary Self-Winding Caliber",
+    date: "March 10, 2025",
+    title: "ONIXX Expands Watch Catalogue with 20+ New Models",
     excerpt:
-      "The new Caliber ONX-R02 features an 80-hour power reserve and ultra-thin architecture, representing the most significant advancement in ONIXX movement technology in a decade.",
+      "ONIXX adds over 20 new watches across Classic, Chronograph, and Smart categories, strengthening its position as a leading online watch retailer in India.",
   },
   {
-    date: "October 8, 2023",
-    title: "ONIXX Opens Flagship Boutique in Tokyo's Ginza District",
+    date: "January 22, 2025",
+    title: "ONIXX Launches Pan India Express Delivery",
     excerpt:
-      "The new 4,200 sq ft boutique brings the complete ONIXX experience to Japan's premier luxury shopping destination, featuring a private watchmaker's studio.",
+      "Starting January 2025, ONIXX offers express delivery across 50+ Indian cities, ensuring customers receive their orders within 2–3 business days.",
   },
   {
-    date: "November 12, 2023",
-    title: "Sovereign Tourbillon Wins Grand Prix d'Horlogerie de Genève",
+    date: "November 5, 2024",
+    title: "ONIXX Introduces Curated Accessories Collection",
     excerpt:
-      "ONIXX's masterpiece of haute horlogerie has been awarded the prestigious Calendar and Astronomy Watch prize at the 2023 GPHG ceremony.",
+      "ONIXX expands beyond watches with a new accessories line featuring premium leather straps, sunglasses, and watch winders, all available with the same quality assurance.",
   },
 ];
 

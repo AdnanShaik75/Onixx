@@ -44,8 +44,8 @@ export default function ContactPage() {
                 Contact Us
               </h1>
               <p className="text-sm text-muted max-w-md mx-auto">
-                Our concierge team is available to assist with any inquiries about
-                our timepieces and services.
+                Our support team is available to assist with any inquiries about
+                our products and services.
               </p>
             </motion.div>
 
@@ -93,7 +93,7 @@ export default function ContactPage() {
                       <option value="general">General Inquiry</option>
                       <option value="sales">Sales</option>
                       <option value="support">Customer Support</option>
-                      <option value="warranty">Warranty Claim</option>
+                      <option value="returns">Returns & Exchanges</option>
                       <option value="press">Press</option>
                     </select>
                     <textarea
@@ -113,9 +113,9 @@ export default function ContactPage() {
 
               <div className="space-y-6">
                 {[
-                  { icon: Phone, label: "Phone", value: "+1 (800) ONIXX-WT", sub: "Mon–Fri, 9am–6pm EST" },
-                  { icon: Mail, label: "Email", value: "concierge@onixx.com", sub: "Response within 24 hours" },
-                  { icon: MapPin, label: "Headquarters", value: "Rue du Rhône 48", sub: "1204 Geneva, Switzerland" },
+                  { icon: Phone, label: "Phone", value: "+91 98765 43210", sub: "Mon–Sat, 10am–7pm IST" },
+                  { icon: Mail, label: "Email", value: "support@onixx.com", sub: "Response within 24 hours" },
+                  { icon: MapPin, label: "Headquarters", value: "Mumbai, Maharashtra", sub: "India" },
                 ].map((item) => (
                   <div key={item.label} className="p-6 bg-card border border-border rounded-[2px]">
                     <item.icon className="w-5 h-5 text-gold mb-3" />
