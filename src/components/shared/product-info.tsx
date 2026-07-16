@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductGallery } from "@/components/shared/product-gallery";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
+import { useToast } from "@/components/ui/toast";
 import type { Product } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const { addItem, openCart } = useCartStore();
   const { toggleItem, isInWishlist } = useWishlistStore();
+  const toast = useToast();
 
   const fullStars = Math.floor(product.rating);
   const hasHalfStar = product.rating % 1 >= 0.5;
@@ -28,7 +30,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
     for (let i = 0; i < quantity; i++) {
       addItem(product);
     }
-    openCart();
+    toast(`${product.name} added to bag`);
+    setTimeout(() => openCart(), 500);
   };
 
   return (
