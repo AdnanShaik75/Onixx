@@ -2,41 +2,64 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product } from "@/lib/data";
 import { ALL_PRODUCTS } from "@/lib/data";
+import { subscribeToPath, saveToPath, isConfigured } from "@/lib/firebase";
 
 interface ProductState {
   products: Product[];
   addProduct: (product: Product) => void;
   updateProduct: (id: string, updates: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
-  resetProducts: () => void;
+  _syncFromFirebase: (products: Product[] | null) => void;
 }
+
+let firebaseUnsubscribed = false;
 
 export const useProductStore = create<ProductState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       products: [...ALL_PRODUCTS],
 
-      addProduct: (product) =>
-        set((state) => ({
-          products: [...state.products, product],
-        })),
+      addProduct: (product) => {
+        const updated = [...get().products, product];
+        set({ products: updated });
+        saveToPath("products", updated);
+      },
 
-      updateProduct: (id, updates) =>
-        set((state) => ({
-          products: state.products.map((p) =>
-            p.id === id ? { ...p, ...updates } : p
-          ),
-        })),
+      updateProduct: (id, updates) => {
+        const updated = get().products.map((p) =>
+          p.id === id ? { ...p, ...updates } : p
+        );
+        set({ products: updated });
+        saveToPath("products", updated);
+      },
 
-      deleteProduct: (id) =>
-        set((state) => ({
-          products: state.products.filter((p) => p.id !== id),
-        })),
+      deleteProduct: (id) => {
+        const updated = get().products.filter((p) => p.id !== id);
+        set({ products: updated });
+        saveToPath("products", updated);
+      },
 
-      resetProducts: () => set({ products: [...ALL_PRODUCTS] }),
+      _syncFromFirebase: (products) => {
+        if (products) {
+          set({ products });
+        }
+      },
     }),
     {
       name: "onixx-products",
+      onRehydrateStorage: () => {
+        if (isConfigured && !firebaseUnsubscribed) {
+          firebaseUnsubscribed = true;
+          const unsub = subscribeToPath<Product[]>("products", (data) => {
+            if (data) {
+              useProductStore.getState()._syncFromFirebase(data);
+            }
+          });
+          if (typeof window !== "undefined") {
+            window.addEventListener("beforeunload", unsub);
+          }
+        }
+      },
     }
   )
 );

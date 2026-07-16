@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { subscribeToPath, saveToPath, isConfigured } from "@/lib/firebase";
 
 export type OrderStatus = "Processing" | "Shipped" | "Delivered" | "Cancelled";
 
@@ -29,23 +30,45 @@ const INITIAL_ORDERS: Order[] = [
 interface OrderState {
   orders: Order[];
   updateStatus: (id: string, status: OrderStatus) => void;
-  resetOrders: () => void;
+  _syncFromFirebase: (orders: Order[] | null) => void;
 }
+
+let firebaseUnsubscribed = false;
 
 export const useOrderStore = create<OrderState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       orders: [...INITIAL_ORDERS],
-      updateStatus: (id, status) =>
-        set((state) => ({
-          orders: state.orders.map((o) =>
-            o.id === id ? { ...o, status } : o
-          ),
-        })),
-      resetOrders: () => set({ orders: [...INITIAL_ORDERS] }),
+
+      updateStatus: (id, status) => {
+        const updated = get().orders.map((o) =>
+          o.id === id ? { ...o, status } : o
+        );
+        set({ orders: updated });
+        saveToPath("orders", updated);
+      },
+
+      _syncFromFirebase: (orders) => {
+        if (orders) {
+          set({ orders });
+        }
+      },
     }),
     {
       name: "onixx-orders",
+      onRehydrateStorage: () => {
+        if (isConfigured && !firebaseUnsubscribed) {
+          firebaseUnsubscribed = true;
+          const unsub = subscribeToPath<Order[]>("orders", (data) => {
+            if (data) {
+              useOrderStore.getState()._syncFromFirebase(data);
+            }
+          });
+          if (typeof window !== "undefined") {
+            window.addEventListener("beforeunload", unsub);
+          }
+        }
+      },
     }
   )
 );

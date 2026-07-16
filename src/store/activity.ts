@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { subscribeToPath, saveToPath, isConfigured } from "@/lib/firebase";
 
 export interface ActivityEntry {
   id: string;
@@ -22,26 +23,50 @@ const INITIAL_ACTIVITY: ActivityEntry[] = [
 interface ActivityState {
   entries: ActivityEntry[];
   addEntry: (entry: Omit<ActivityEntry, "id" | "timestamp">) => void;
+  _syncFromFirebase: (entries: ActivityEntry[] | null) => void;
 }
+
+let firebaseUnsubscribed = false;
 
 export const useActivityStore = create<ActivityState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       entries: [...INITIAL_ACTIVITY],
-      addEntry: (entry) =>
-        set((state) => ({
-          entries: [
-            {
-              ...entry,
-              id: `a${Date.now()}`,
-              timestamp: new Date().toISOString(),
-            },
-            ...state.entries,
-          ].slice(0, 50),
-        })),
+
+      addEntry: (entry) => {
+        const updated = [
+          {
+            ...entry,
+            id: `a${Date.now()}`,
+            timestamp: new Date().toISOString(),
+          },
+          ...get().entries,
+        ].slice(0, 50);
+        set({ entries: updated });
+        saveToPath("activity", updated);
+      },
+
+      _syncFromFirebase: (entries) => {
+        if (entries) {
+          set({ entries });
+        }
+      },
     }),
     {
       name: "onixx-activity",
+      onRehydrateStorage: () => {
+        if (isConfigured && !firebaseUnsubscribed) {
+          firebaseUnsubscribed = true;
+          const unsub = subscribeToPath<ActivityEntry[]>("activity", (data) => {
+            if (data) {
+              useActivityStore.getState()._syncFromFirebase(data);
+            }
+          });
+          if (typeof window !== "undefined") {
+            window.addEventListener("beforeunload", unsub);
+          }
+        }
+      },
     }
   )
 );
