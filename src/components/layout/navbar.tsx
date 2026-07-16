@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, User, Heart, ShoppingBag, Menu, Settings, Home } from "lucide-react";
+import { Search, User, Heart, ShoppingBag, Menu, Settings, ArrowLeft } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/data";
 import { useScrollPosition } from "@/hooks/use-scroll-position";
 import { useMobileMenu } from "@/hooks/use-mobile-menu";
@@ -17,6 +18,7 @@ import { SettingsPanel } from "./settings-panel";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
+  const router = useRouter();
   const isScrolled = useScrollPosition(50);
   const { isOpen: isMobileOpen, toggle: toggleMobile, close: closeMobile } = useMobileMenu();
   const { totalItems, openCart } = useCartStore();
@@ -74,13 +76,14 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <Link
-              href="/"
-              className="hidden lg:flex items-center justify-center w-10 h-10 text-muted hover:text-gold transition-colors duration-300"
-              title="Home"
+            <button
+              onClick={() => router.back()}
+              className="hidden lg:flex items-center gap-2 h-10 px-3 text-muted hover:text-gold transition-colors duration-300"
+              title="Go back"
             >
-              <Home className="w-4 h-4" />
-            </Link>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-[11px] tracking-[1px] uppercase">Back</span>
+            </button>
 
             <button
               onClick={() => setIsSearchOpen(true)}

@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { X, Home } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, ArrowLeft } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/data";
 
 interface MobileMenuProps {
@@ -11,6 +12,7 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  const router = useRouter();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -51,15 +53,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
               >
-                <Link
-                  href="/"
-                  onClick={onClose}
-                  className="block py-4 border-b border-border group"
+                <button
+                  onClick={() => { router.back(); onClose(); }}
+                  className="block py-4 border-b border-border group w-full text-left"
                 >
                   <span className="flex items-center gap-3 text-sm tracking-[3px] uppercase text-gold group-hover:text-gold-hover transition-colors duration-300">
-                    <Home className="w-4 h-4" /> HOME
+                    <ArrowLeft className="w-4 h-4" /> GO BACK
                   </span>
-                </Link>
+                </button>
               </motion.div>
               {NAV_ITEMS.map((item, index) => (
                 <motion.div
