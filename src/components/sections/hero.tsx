@@ -16,6 +16,7 @@ export function Hero() {
           fill
           priority
           sizes="100vw"
+          unoptimized
           className="object-cover animate-hero-zoom"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background/30" />
