@@ -319,74 +319,39 @@ test.describe("Checkout", () => {
 // ─── ADMIN ───────────────────────────────────────────────
 
 test.describe("Admin", () => {
-  test("shows login form", async ({ page }) => {
-    await goto(page, "/admin");
+  test("unauthenticated user is redirected to login", async ({ page }) => {
+    await page.goto("/admin", { waitUntil: "domcontentloaded" });
+    await page.waitForURL(/admin\/login/, { timeout: 15000 });
     await expect(page.getByText("ONIXX Admin")).toBeVisible({ timeout: 15000 });
-    await expect(page.getByPlaceholder("Password")).toBeVisible();
+    await expect(page.getByPlaceholder("Email Address")).toBeVisible();
+    await expect(page.getByPlaceholder("Enter your password")).toBeVisible();
   });
 
-  test("wrong password shows error", async ({ page }) => {
-    await goto(page, "/admin");
-    await page.getByPlaceholder("Password").fill("wrongpassword");
-    await page.getByRole("button", { name: /ACCESS DASHBOARD/i }).click();
-    await page.waitForTimeout(500);
-    await expect(page.getByText("Incorrect password")).toBeVisible();
+  test("login page shows email and password fields", async ({ page }) => {
+    await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("ONIXX Admin")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByPlaceholder("admin@onixx.com")).toBeVisible();
+    await expect(page.getByPlaceholder("Enter your password")).toBeVisible();
   });
 
-  test("correct password shows dashboard", async ({ page }) => {
-    await goto(page, "/admin");
-    await page.getByPlaceholder("Password").fill("Onixx@2005");
-    await page.getByRole("button", { name: /ACCESS DASHBOARD/i }).click();
-    await page.waitForTimeout(2000);
-    await expect(page.getByText("Dashboard").first()).toBeVisible({ timeout: 15000 });
+  test("login page shows forgot password link", async ({ page }) => {
+    await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("Forgot password?")).toBeVisible({ timeout: 15000 });
   });
 
-  test("admin Products tab shows products", async ({ page }) => {
-    await goto(page, "/admin");
-    await page.getByPlaceholder("Password").fill("Onixx@2005");
-    await page.getByRole("button", { name: /ACCESS DASHBOARD/i }).click();
-    await page.waitForTimeout(2000);
+  test("login page has back to store link", async ({ page }) => {
+    await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("Back to Store")).toBeVisible({ timeout: 15000 });
+  });
 
-    const productsTab = page.locator("button").filter({ hasText: "Products" }).first();
-    await productsTab.click();
+  test("wrong credentials show error on login page", async ({ page }) => {
+    await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1000);
-    await expect(page.getByText("Royal Chronograph").first()).toBeVisible({ timeout: 10000 });
-  });
-
-  test("admin Orders tab shows orders", async ({ page }) => {
-    await goto(page, "/admin");
-    await page.getByPlaceholder("Password").fill("Onixx@2005");
+    await page.getByPlaceholder("admin@onixx.com").fill("wrong@example.com");
+    await page.getByPlaceholder("Enter your password").fill("wrongpassword");
     await page.getByRole("button", { name: /ACCESS DASHBOARD/i }).click();
-    await page.waitForTimeout(2000);
-
-    const ordersTab = page.locator("button").filter({ hasText: "Orders" }).first();
-    await ordersTab.click();
-    await page.waitForTimeout(1000);
-    await expect(page.getByText("ORD-001").first()).toBeVisible({ timeout: 10000 });
-  });
-
-  test("admin Inventory tab loads", async ({ page }) => {
-    await goto(page, "/admin");
-    await page.getByPlaceholder("Password").fill("Onixx@2005");
-    await page.getByRole("button", { name: /ACCESS DASHBOARD/i }).click();
-    await page.waitForTimeout(2000);
-
-    const inventoryTab = page.locator("button").filter({ hasText: "Inventory" }).first();
-    await inventoryTab.click();
-    await page.waitForTimeout(1000);
-    await expect(page.getByText("Total Items")).toBeVisible({ timeout: 10000 });
-  });
-
-  test("admin Settings tab loads", async ({ page }) => {
-    await goto(page, "/admin");
-    await page.getByPlaceholder("Password").fill("Onixx@2005");
-    await page.getByRole("button", { name: /ACCESS DASHBOARD/i }).click();
-    await page.waitForTimeout(2000);
-
-    const settingsTab = page.locator("button").filter({ hasText: "Settings" }).first();
-    await settingsTab.click();
-    await page.waitForTimeout(1000);
-    await expect(page.getByText("Store Information")).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(3000);
+    await expect(page.locator(".text-red-400, .bg-red-500\\/10")).toBeVisible({ timeout: 10000 });
   });
 });
 

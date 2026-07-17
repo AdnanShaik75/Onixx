@@ -1,0 +1,44 @@
+{
+  "rules": {
+    "products": {
+      ".read": true,
+      ".write": "auth != null && auth.admin === true"
+    },
+    "collections": {
+      ".read": true,
+      ".write": "auth != null && auth.admin === true"
+    },
+    "siteConfig": {
+      ".read": true,
+      ".write": "auth != null && auth.admin === true"
+    },
+    "orders": {
+      ".read": "auth != null && auth.admin === true",
+      ".write": "auth != null && auth.admin === true"
+    },
+    "activity": {
+      ".read": "auth != null && auth.admin === true",
+      ".write": "auth != null && auth.admin === true"
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.admin === true)",
+        ".write": "auth != null && (auth.uid === $uid || auth.admin === true)"
+      }
+    },
+    "carts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "wishlists": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -21,7 +22,6 @@ import {
   Search,
   Menu,
   X,
-  Lock,
   AlertTriangle,
   AlertCircle,
   PackageX,
@@ -37,6 +37,7 @@ import {
   Globe,
   Upload,
   ImageIcon,
+  LogOut,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useProductStore } from "@/store/products";
@@ -45,11 +46,10 @@ import { useActivityStore } from "@/store/activity";
 import { useSiteConfig, DEFAULT_HERO_IMAGE } from "@/store/site-config";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ProductForm } from "@/components/admin/product-form";
+import { useFirebaseAuth } from "@/components/layout/auth-provider";
 import type { Product } from "@/lib/data";
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "Onixx@2005";
 const LOW_STOCK_THRESHOLD = 5;
 
 const navItems = [
@@ -120,10 +120,9 @@ function CustomerAvatar({ name }: { name: string }) {
 }
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { user, loading: authLoading, logout } = useFirebaseAuth();
+  const router = useRouter();
   const { items } = useCartStore();
   const { products, addProduct, updateProduct, deleteProduct } = useProductStore();
   const { orders, updateStatus } = useOrderStore();
@@ -244,67 +243,29 @@ export default function AdminPage() {
     });
   }, [products, searchQuery, filterCategory, stockFilter]);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setPasswordError(false);
-    } else {
-      setPasswordError(true);
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/admin/login");
     }
-  };
+  }, [user, authLoading, router]);
 
-  if (!isAuthenticated) {
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm"
-        >
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full border border-gold/30 flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-7 h-7 text-gold" />
-            </div>
-            <h1
-              className="text-2xl font-semibold mb-2"
-              style={{ fontFamily: "var(--font-heading), serif" }}
-            >
-              ONIXX Admin
-            </h1>
-            <p className="text-sm text-muted">Enter your password to access the dashboard</p>
-          </div>
-
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div>
-              <Input
-                type="password"
-                placeholder="Password"
-                value={passwordInput}
-                onChange={(e) => {
-                  setPasswordInput(e.target.value);
-                  setPasswordError(false);
-                }}
-                className={passwordError ? "border-red-500 focus:border-red-500" : ""}
-              />
-              {passwordError && (
-                <p className="text-xs text-red-500 mt-1">Incorrect password. Please try again.</p>
-              )}
-            </div>
-            <Button type="submit" variant="primary" className="w-full">
-              ACCESS DASHBOARD
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <Link href="/" className="text-xs text-muted hover:text-gold transition-colors">
-              Back to Store
-            </Link>
-          </div>
-        </motion.div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-muted">Loading...</p>
+        </div>
       </div>
     );
   }
+
+  if (!user) return null;
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/admin/login");
+  };
 
   const totalRevenue = products.reduce((sum, p) => sum + p.price * p.stock, 0);
 
@@ -397,7 +358,7 @@ export default function AdminPage() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border space-y-1">
           <Link
             href="/"
             className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm text-muted hover:text-gold transition-colors"
@@ -405,6 +366,13 @@ export default function AdminPage() {
             <Home className="w-4 h-4" />
             Back to Store
           </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm text-muted hover:text-red-400 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
       </aside>
 
@@ -455,7 +423,7 @@ export default function AdminPage() {
                 ))}
               </nav>
 
-              <div className="p-4 border-t border-border">
+              <div className="p-4 border-t border-border space-y-1">
                 <Link
                   href="/"
                   className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm text-muted hover:text-gold transition-colors"
@@ -463,6 +431,13 @@ export default function AdminPage() {
                   <Home className="w-4 h-4" />
                   Back to Store
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm text-muted hover:text-red-400 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
               </div>
             </motion.aside>
           </>
