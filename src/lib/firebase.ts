@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,13 +24,15 @@ const isConfigured =
 
 let app: ReturnType<typeof initializeApp> | null = null;
 let db: ReturnType<typeof getDatabase> | null = null;
+let storage: ReturnType<typeof getStorage> | null = null;
 
 if (isConfigured && typeof window !== "undefined") {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
   db = getDatabase(app);
+  storage = getStorage(app);
 }
 
-export { db, isConfigured };
+export { db, storage, isConfigured };
 
 export function subscribeToPath<T>(
   path: string,
@@ -65,4 +68,80 @@ export async function fetchProductFromFirebase(id: string) {
   const all = await fetchFromPath<Array<{ id: string } & Record<string, unknown>>>("products");
   if (!Array.isArray(all)) return null;
   return all.find((p) => p?.id === id) ?? null;
+}
+
+// ─── Image Upload ────────────────────────────────────────
+
+export async function uploadImage(
+  path: string,
+  file: File,
+  maxWidth = 1200,
+  quality = 0.85
+): Promise<string> {
+  if (!storage) return URL.createObjectURL(file);
+
+  const compressed = await compressImage(file, maxWidth, quality);
+  const fileRef = storageRef(storage, path);
+  const snapshot = await uploadBytes(fileRef, compressed, {
+    contentType: compressed.type,
+  });
+  return getDownloadURL(snapshot.ref);
+}
+
+export async function uploadImages(
+  basePath: string,
+  files: File[],
+  maxWidth = 1200,
+  quality = 0.85
+): Promise<string[]> {
+  const results = await Promise.all(
+    files.map((file, i) => {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${basePath}/${Date.now()}-${i}.${ext}`;
+      return uploadImage(path, file, maxWidth, quality);
+    })
+  );
+  return results;
+}
+
+export async function deleteImage(url: string): Promise<void> {
+  if (!storage || !url.includes("firebasestorage")) return;
+  try {
+    const fileRef = storageRef(storage, url);
+    await deleteObject(fileRef);
+  } catch {
+    // image may already be deleted or URL is external
+  }
+}
+
+function compressImage(
+  file: File,
+  maxWidth: number,
+  quality: number
+): Promise<Blob> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => resolve(blob || new Blob()),
+          "image/jpeg",
+          quality
+        );
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
 }

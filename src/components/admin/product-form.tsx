@@ -2,9 +2,10 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Save, Upload, ImageIcon } from "lucide-react";
+import { X, Save, Upload, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { uploadImage, uploadImages } from "@/lib/firebase";
 import type { Product } from "@/lib/data";
 
 interface ProductFormProps {
@@ -51,6 +52,8 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
   );
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -290,43 +293,48 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
                         alt="Main image preview"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2 right-2 px-2 py-1 bg-background/80 backdrop-blur-sm text-[10px] text-muted rounded-[2px]">
-                        {form.image.startsWith("data:") ? "Uploaded" : "URL"}
-                      </div>
                     </div>
                   )}
                   <div className="flex gap-2">
                     <label className="flex items-center justify-center gap-2 flex-1 h-10 border border-dashed border-border rounded-[2px] text-sm text-muted hover:text-gold hover:border-gold/30 transition-colors cursor-pointer">
-                      <Upload className="w-4 h-4" />
-                      Upload
+                      {uploadingMain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {uploadingMain ? "Uploading..." : "Upload"}
                       <input
                         ref={mainImageInputRef}
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={(e) => {
+                        disabled={uploadingMain}
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          if (file.size > 2 * 1024 * 1024) {
-                            alert("File too large. Max 2MB.");
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert("File too large. Max 5MB.");
                             return;
                           }
-                          const reader = new FileReader();
-                          reader.onload = (ev) => {
-                            update("image", ev.target?.result as string);
-                          };
-                          reader.readAsDataURL(file);
+                          setUploadingMain(true);
+                          try {
+                            const productId = form.id || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                            const url = await uploadImage(`products/${productId}/main`, file);
+                            update("image", url);
+                          } catch (err) {
+                            alert("Upload failed. Try again.");
+                            console.error(err);
+                          } finally {
+                            setUploadingMain(false);
+                            e.target.value = "";
+                          }
                         }}
                       />
                     </label>
                     <Input
-                      value={form.image.startsWith("data:") ? "" : form.image}
+                      value={form.image}
                       onChange={(e) => update("image", e.target.value)}
                       placeholder="Or paste image URL..."
                       className="flex-[2]"
                     />
                   </div>
-                  <p className="text-[10px] text-muted">Max 2MB. Paste a URL or upload a file.</p>
+                  <p className="text-[10px] text-muted">Max 5MB. Images auto-compressed and uploaded to Firebase Storage.</p>
                 </div>
               </div>
 
@@ -335,31 +343,33 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
                 <label className="text-xs text-muted">Gallery Images (one per line, or upload multiple)</label>
                 <div className="mt-1 space-y-2">
                   <label className="flex items-center justify-center gap-2 w-full h-10 border border-dashed border-border rounded-[2px] text-sm text-muted hover:text-gold hover:border-gold/30 transition-colors cursor-pointer">
-                    <ImageIcon className="w-4 h-4" />
-                    Upload Gallery Images
+                    {uploadingGallery ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                    {uploadingGallery ? "Uploading..." : "Upload Gallery Images"}
                     <input
                       ref={galleryInputRef}
                       type="file"
                       accept="image/*"
                       multiple
                       className="hidden"
-                      onChange={(e) => {
+                      disabled={uploadingGallery}
+                      onChange={async (e) => {
                         const files = Array.from(e.target.files || []);
-                        const valid = files.filter((f) => f.size <= 2 * 1024 * 1024);
-                        if (valid.length < files.length) alert("Some files exceeded 2MB and were skipped.");
+                        const valid = files.filter((f) => f.size <= 5 * 1024 * 1024);
+                        if (valid.length < files.length) alert("Some files exceeded 5MB and were skipped.");
                         if (valid.length === 0) return;
-                        const readers = valid.map(
-                          (file) =>
-                            new Promise<string>((resolve) => {
-                              const reader = new FileReader();
-                              reader.onload = (ev) => resolve(ev.target?.result as string);
-                              reader.readAsDataURL(file);
-                            })
-                        );
-                        Promise.all(readers).then((results) => {
+                        setUploadingGallery(true);
+                        try {
+                          const productId = form.id || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                          const urls = await uploadImages(`products/${productId}/gallery`, valid);
                           const existing = imagesText.trim() ? imagesText.trim().split("\n") : [];
-                          setImagesText([...existing, ...results].join("\n"));
-                        });
+                          setImagesText([...existing, ...urls].join("\n"));
+                        } catch (err) {
+                          alert("Upload failed. Try again.");
+                          console.error(err);
+                        } finally {
+                          setUploadingGallery(false);
+                          e.target.value = "";
+                        }
                       }}
                     />
                   </label>
