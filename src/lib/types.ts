@@ -1,5 +1,35 @@
 // ─── Order Lifecycle ──────────────────────────────────────
 
+export type BadgeType = "BESTSELLER" | "SALE" | "NEW" | "LIMITED";
+
+// ─── Product ─────────────────────────────────────────────
+
+export interface Product {
+  id: string;
+  name: string;
+  category: string;
+  collection: string;
+  price: number;
+  originalPrice?: number;
+  rating: number;
+  reviewCount: number;
+  badge?: BadgeType;
+  image: string;
+  images: string[];
+  description: string;
+  features: string[];
+  specs: { label: string; value: string }[];
+  strapMaterial?: string;
+  caseMaterial?: string;
+  movement?: string;
+  waterResistance?: string;
+  caseSize?: string;
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
+  isLimitedEdition?: boolean;
+  stock: number;
+}
+
 export type OrderStatus =
   | "Draft"
   | "Pending Payment"
@@ -244,4 +274,157 @@ export interface StockReservation {
   quantity: number;
   orderId: string;
   expiresAt: string;
+}
+
+// ─── Reviews ─────────────────────────────────────────────
+
+export type ReviewStatus = "pending" | "approved" | "rejected" | "flagged";
+
+export interface ReviewVote {
+  userId: string;
+  helpful: boolean;
+  timestamp: string;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  title: string;
+  body: string;
+  status: ReviewStatus;
+  verifiedPurchase: boolean;
+  votes: ReviewVote[];
+  helpfulCount: number;
+  unhelpfulCount: number;
+  adminResponse?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewSummary {
+  productId: string;
+  totalReviews: number;
+  averageRating: number;
+  distribution: Record<number, number>;
+  verifiedCount: number;
+}
+
+// ─── Notifications ───────────────────────────────────────
+
+export type NotificationType =
+  | "order_update"
+  | "account"
+  | "wishlist"
+  | "low_stock"
+  | "new_order"
+  | "review"
+  | "system";
+
+export type NotificationPriority = "low" | "medium" | "high";
+
+export interface Notification {
+  id: string;
+  userId: string | null;
+  type: NotificationType;
+  title: string;
+  message: string;
+  priority: NotificationPriority;
+  read: boolean;
+  actionUrl?: string;
+  createdAt: string;
+}
+
+// ─── Search & Filtering ──────────────────────────────────
+
+export type SortOption =
+  | "newest"
+  | "price_asc"
+  | "price_desc"
+  | "popularity"
+  | "rating"
+  | "name_asc"
+  | "name_desc";
+
+export interface SearchFilters {
+  query: string;
+  categories: string[];
+  collections: string[];
+  priceRange: { min: number; max: number } | null;
+  inStock: boolean | null;
+  badge: BadgeType | null;
+  sort: SortOption;
+  page: number;
+  perPage: number;
+}
+
+export interface SearchResult {
+  products: Product[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+  suggestions: string[];
+}
+
+// ─── Settings ────────────────────────────────────────────
+
+export interface StoreSettings {
+  storeName: string;
+  storeEmail: string;
+  storePhone: string;
+  storeAddress: string;
+  currency: string;
+  freeShippingThreshold: number;
+  defaultShippingCost: number;
+  taxRate: number;
+  enableReviews: boolean;
+  enableWishlist: boolean;
+  enableNotifications: boolean;
+  enableOrderConfirmationEmails: boolean;
+  enableShippingUpdateEmails: boolean;
+  heroBanners: HeroBanner[];
+  featuredProductIds: string[];
+}
+
+export interface HeroBanner {
+  id: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  linkUrl: string;
+  active: boolean;
+  order: number;
+}
+
+// ─── Media ───────────────────────────────────────────────
+
+export interface MediaItem {
+  id: string;
+  url: string;
+  filename: string;
+  type: "image";
+  size: number;
+  width: number;
+  height: number;
+  alt: string;
+  createdAt: string;
+}
+
+// ─── Analytics ───────────────────────────────────────────
+
+export interface AnalyticsSummary {
+  totalRevenue: number;
+  totalOrders: number;
+  totalCustomers: number;
+  averageOrderValue: number;
+  revenueGrowth: number;
+  orderGrowth: number;
+  topProducts: { productId: string; name: string; revenue: number; units: number }[];
+  lowStockProducts: { productId: string; name: string; stock: number }[];
+  recentActivity: Notification[];
+  revenueByMonth: { month: string; revenue: number }[];
+  ordersByStatus: Record<string, number>;
 }

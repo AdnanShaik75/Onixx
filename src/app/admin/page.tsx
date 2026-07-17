@@ -38,6 +38,9 @@ import {
   Upload,
   ImageIcon,
   LogOut,
+  Copy,
+  Star,
+  EyeOff,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useProductStore } from "@/store/products";
@@ -47,6 +50,7 @@ import { useActivityStore } from "@/store/activity";
 import { useSiteConfig, DEFAULT_HERO_IMAGE } from "@/store/site-config";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { ProductForm } from "@/components/admin/product-form";
 import { useFirebaseAuth } from "@/components/layout/auth-provider";
 import type { Product } from "@/lib/data";
@@ -59,6 +63,7 @@ const navItems = [
   { icon: Boxes, label: "Inventory", id: "inventory" },
   { icon: ShoppingCart, label: "Orders", id: "orders" },
   { icon: Users, label: "Customers", id: "customers" },
+  { icon: BarChart3, label: "Analytics", id: "analytics" },
   { icon: Settings, label: "Settings", id: "settings" },
 ];
 
@@ -139,6 +144,7 @@ export default function AdminPage() {
   const [customerSearch, setCustomerSearch] = useState("");
   const [customerSort, setCustomerSort] = useState<"spent" | "orders" | "name">("spent");
   const [stockFilter, setStockFilter] = useState<"all" | "in" | "low" | "out">("all");
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
 
   const showToast = useCallback((msg: string) => setToast(msg), []);
 
@@ -251,6 +257,14 @@ export default function AdminPage() {
     });
   }, [products, searchQuery, filterCategory, stockFilter]);
 
+  const collectionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      counts[p.collection] = (counts[p.collection] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [products]);
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/admin/login");
@@ -312,6 +326,60 @@ export default function AdminPage() {
   const handleNav = (id: string) => {
     setActiveTab(id);
     setSidebarOpen(false);
+  };
+
+  const handleDuplicate = (product: Product) => {
+    const duplicate: Product = {
+      ...product,
+      id: `${product.id}-copy-${Date.now()}`,
+      name: `${product.name} (Copy)`,
+    };
+    addProduct(duplicate);
+    addEntry({ action: "Product Duplicated", detail: `${product.name} duplicated`, type: "product" });
+    showToast(`${product.name} duplicated`);
+  };
+
+  const handleToggleFeatured = (product: Product) => {
+    updateProduct(product.id, { isBestSeller: !product.isBestSeller });
+    addEntry({
+      action: product.isBestSeller ? "Featured Removed" : "Featured Added",
+      detail: `${product.name} ${product.isBestSeller ? "removed from" : "added to"} featured`,
+      type: "product",
+    });
+    showToast(`${product.name} ${product.isBestSeller ? "unfeatured" : "featured"}`);
+  };
+
+  const handleBulkDelete = () => {
+    selectedProducts.forEach((id) => deleteProduct(id));
+    addEntry({ action: "Bulk Delete", detail: `${selectedProducts.size} products deleted`, type: "product" });
+    showToast(`${selectedProducts.size} products deleted`);
+    setSelectedProducts(new Set());
+  };
+
+  const handleBulkToggleVisibility = () => {
+    selectedProducts.forEach((id) => {
+      const p = products.find((prod) => prod.id === id);
+      if (p) updateProduct(id, { isBestSeller: !p.isBestSeller });
+    });
+    showToast(`${selectedProducts.size} products updated`);
+    setSelectedProducts(new Set());
+  };
+
+  const toggleProductSelect = (id: string) => {
+    setSelectedProducts((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAllProducts = () => {
+    if (selectedProducts.size === filteredProducts.length) {
+      setSelectedProducts(new Set());
+    } else {
+      setSelectedProducts(new Set(filteredProducts.map((p) => p.id)));
+    }
   };
 
   const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
@@ -837,12 +905,44 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Bulk Actions Bar */}
+              <AnimatePresence>
+                {selectedProducts.size > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: -10, height: 0 }}
+                    className="p-3 bg-gold/10 border border-gold/30 rounded-[2px] flex items-center gap-3"
+                  >
+                    <span className="text-xs text-gold font-medium">{selectedProducts.size} selected</span>
+                    <Separator variant="gold" className="w-px h-4" />
+                    <Button variant="secondary" className="h-7 text-[10px] px-2" onClick={handleBulkDelete}>
+                      <Trash2 className="w-3 h-3 mr-1" /> Delete
+                    </Button>
+                    <Button variant="secondary" className="h-7 text-[10px] px-2" onClick={handleBulkToggleVisibility}>
+                      <EyeOff className="w-3 h-3 mr-1" /> Toggle Visibility
+                    </Button>
+                    <button onClick={() => setSelectedProducts(new Set())} className="ml-auto text-[10px] text-muted hover:text-foreground transition-colors">
+                      Clear
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <p className="text-xs text-muted">{filteredProducts.length} products</p>
 
               <div className="hidden md:block bg-card border border-border rounded-[2px] overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border">
+                      <th className="px-4 py-3 w-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.size === filteredProducts.length && filteredProducts.length > 0}
+                          onChange={toggleAllProducts}
+                          className="w-3.5 h-3.5 accent-gold cursor-pointer"
+                        />
+                      </th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Product</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Category</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Collection</th>
@@ -854,7 +954,17 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {filteredProducts.map((product) => (
-                      <tr key={product.id} className="border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors">
+                      <tr key={product.id} className={`border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors ${
+                        selectedProducts.has(product.id) ? "bg-gold/5" : ""
+                      }`}>
+                        <td className="px-4 py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.has(product.id)}
+                            onChange={() => toggleProductSelect(product.id)}
+                            className="w-3.5 h-3.5 accent-gold cursor-pointer"
+                          />
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-background rounded-[2px] overflow-hidden border border-border relative">
@@ -882,7 +992,17 @@ export default function AdminPage() {
                         </td>
                         <td className="px-6 py-4 text-sm text-muted">{formatPrice(product.price * product.stock)}</td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleToggleFeatured(product)}
+                              className={`p-1.5 transition-colors ${product.isBestSeller ? "text-gold" : "text-muted hover:text-gold"}`}
+                              title={product.isBestSeller ? "Remove from featured" : "Add to featured"}
+                            >
+                              <Star className={`w-3.5 h-3.5 ${product.isBestSeller ? "fill-gold" : ""}`} />
+                            </button>
+                            <button onClick={() => handleDuplicate(product)} className="p-1.5 text-muted hover:text-gold transition-colors" title="Duplicate">
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
                             <button onClick={() => handleEdit(product)} className="p-1.5 text-muted hover:text-gold transition-colors" title="Edit">
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -894,7 +1014,7 @@ export default function AdminPage() {
                       </tr>
                     ))}
                     {filteredProducts.length === 0 && (
-                      <tr><td colSpan={7} className="px-6 py-12 text-center text-sm text-muted">No products found</td></tr>
+                      <tr><td colSpan={8} className="px-6 py-12 text-center text-sm text-muted">No products found</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -914,6 +1034,16 @@ export default function AdminPage() {
                             {product.badge && <span className="text-[10px] text-gold">{product.badge}</span>}
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
+                            <button
+                              onClick={() => handleToggleFeatured(product)}
+                              className={`p-1.5 transition-colors ${product.isBestSeller ? "text-gold" : "text-muted hover:text-gold"}`}
+                              title={product.isBestSeller ? "Remove from featured" : "Add to featured"}
+                            >
+                              <Star className={`w-3.5 h-3.5 ${product.isBestSeller ? "fill-gold" : ""}`} />
+                            </button>
+                            <button onClick={() => handleDuplicate(product)} className="p-1.5 text-muted hover:text-gold transition-colors">
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
                             <button onClick={() => handleEdit(product)} className="p-1.5 text-muted hover:text-gold transition-colors">
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -944,6 +1074,32 @@ export default function AdminPage() {
                   <div className="py-12 text-center text-sm text-muted">No products found</div>
                 )}
               </div>
+
+              {/* Collections Management */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="p-4 lg:p-6 bg-card border border-border rounded-[2px]"
+              >
+                <h3 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{ fontFamily: "var(--font-heading), serif" }}>
+                  <Package className="w-4 h-4 text-gold" />
+                  Collections
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {collectionCounts.map(([collection, count]) => (
+                    <div
+                      key={collection}
+                      className="p-3 bg-background border border-border rounded-[2px] hover:border-gold/20 transition-colors cursor-pointer"
+                      onClick={() => setFilterCategory("ALL")}
+                    >
+                      <p className="text-xs text-muted uppercase tracking-wide mb-1">{collection}</p>
+                      <p className="text-lg font-semibold text-gold">{count}</p>
+                      <p className="text-[10px] text-muted">{count === 1 ? "product" : "products"}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
             </motion.div>
           )}
 

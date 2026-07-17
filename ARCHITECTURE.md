@@ -115,6 +115,9 @@ src/
 │   ├── shipping.ts          ShippingProvider — FlatRateShippingProvider + singleton
 │   ├── order-number.ts      generateOrderNumber() → ONX-YYYYMMDD-000001
 │   ├── inventory.ts         Inventory helpers (buildInventoryItem, createReservation, etc.)
+│   ├── search.ts            Product search engine — searchProducts, getSuggestions, filters
+│   ├── analytics.ts         Admin analytics service — revenue/orders/customers metrics
+│   ├── email-templates.ts   9 email templates (welcome, orders, alerts)
 │   └── types.ts             Shared TypeScript types (Order, OrderStatus, PricingInput, etc.)
 ├── store/
 │   ├── inventory.ts         Zustand InventoryStore — stock + reservation system
@@ -122,7 +125,10 @@ src/
 │   ├── cart.ts              Zustand cart store
 │   ├── activity.ts          Zustand activity log
 │   ├── customer.ts          Zustand customer profile
-│   └── wishlist.ts          Zustand wishlist (if present)
+│   ├── wishlist.ts          Zustand wishlist
+│   ├── reviews.ts           Zustand product reviews store
+│   ├── notifications.ts     Zustand notification system store
+│   └── settings.ts          Zustand store settings store
 ├── proxy.ts                 Route protection (middleware)
 ├── app/
 │   ├── api/auth/
@@ -132,9 +138,12 @@ src/
 │   ├── admin/
 │   │   ├── page.tsx         Admin dashboard (client)
 │   │   ├── login/page.tsx   Login page (client)
+│   │   ├── analytics/       Admin analytics dashboard
+│   │   ├── settings/        Store settings page (6 tabs)
 │   │   ├── unauthorized/    403 page
 │   │   ├── loading.tsx      Loading state
 │   │   └── error.tsx        Error boundary
+│   ├── account/             Customer dashboard (profile, orders, addresses)
 │   ├── checkout/
 │   │   └── page.tsx         Checkout flow (client)
 │   └── error.tsx            Global error boundary
@@ -421,6 +430,332 @@ useEffect(() => {
 
 ---
 
+## Product Search & Filtering
+
+File: `src/lib/search.ts`
+
+Client-side search engine for products with filtering, sorting, and URL parameter sync.
+
+### API
+
+| Function | Signature | Purpose |
+|----------|-----------|---------|
+| `searchProducts` | `(products, filters) => Product[]` | Full-text search across name, description, category, collection |
+| `getSuggestions` | `(products, query) => string[]` | Autocomplete suggestions based on partial query |
+| `debouncedSearch` | `(fn, delay?) => debouncedFn` | 300ms debounced wrapper for search input handlers |
+
+### Filter Options
+
+| Filter | Type | Description |
+|--------|------|-------------|
+| `category` | `string` | Filter by product category |
+| `collection` | `string` | Filter by collection slug |
+| `priceMin` / `priceMax` | `number` | Price range bounds |
+| `inStock` | `boolean` | Show only available products |
+| `badge` | `string` | Filter by product badge (e.g. "New", "Sale") |
+
+### Sort Options
+
+7 sort modes: `relevance`, `price-asc`, `price-desc`, `name-asc`, `name-desc`, `newest`, `oldest`.
+
+### URL Param Sync
+
+Filter and sort state is synced to URL search params (`?q=...&category=...&sort=...`). Enables shareable/bookmarkable filtered views and browser back/forward navigation through search state.
+
+---
+
+## Product Reviews
+
+### Store
+
+File: `src/store/reviews.ts`
+
+Zustand store (`useReviewsStore`) managing product reviews with Firebase persistence.
+
+| Method | Purpose |
+|--------|---------|
+| `addReview` | Submit a new review (linked to order for verified purchase check) |
+| `getReviews(productId)` | Fetch all reviews for a product |
+| `getAverageRating(productId)` | Calculate average star rating |
+| `toggleHelpful(reviewId)` | Increment/decrement helpful vote count |
+| `moderateReview(reviewId, action)` | Admin approve/reject/hide a review |
+| `reportReview(reviewId, reason)` | Flag a review for admin review |
+
+### Component
+
+File: `src/components/shared/review-section.tsx`
+
+Renders the full review experience on product pages: summary stats, review list with sorting, and review submission form (for verified purchasers).
+
+### Types
+
+```typescript
+interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  orderId: string;        // Links to purchase for verified badge
+  rating: number;         // 1-5 stars
+  title: string;
+  comment: string;
+  verified: boolean;      // True if linked to a delivered order
+  helpful: number;        // Helpful vote count
+  status: ReviewStatus;
+  createdAt: string;
+}
+
+type ReviewStatus = "pending" | "approved" | "rejected" | "hidden";
+```
+
+### Features
+
+- **Verified Purchase Badge**: Reviews linked to delivered orders are marked as verified
+- **Admin Moderation**: All reviews go through approval before public display
+- **Helpful Votes**: Users can mark reviews as helpful; count displayed on each review
+- **Rating Summary**: Average rating, rating distribution bar chart, total count
+
+---
+
+## Notifications
+
+### Store
+
+File: `src/store/notifications.ts`
+
+Zustand store (`useNotificationsStore`) managing real-time notifications for both admin and customer users.
+
+| Method | Purpose |
+|--------|---------|
+| `addNotification` | Create a new notification (admin or customer) |
+| `markAsRead(notificationId)` | Mark a single notification as read |
+| `markAllAsRead()` | Mark all current notifications as read |
+| `clearNotification(notificationId)` | Remove a notification |
+| `getUnreadCount()` | Returns number of unread notifications |
+
+### Component
+
+File: `src/components/layout/notification-bell.tsx`
+
+Header bell icon with unread count badge and dropdown notification list.
+
+### Notification Types
+
+| Type | Target | Trigger |
+|------|--------|---------|
+| `order_placed` | Admin | New customer order |
+| `order_shipped` | Customer | Order dispatched |
+| `order_delivered` | Customer | Order delivered |
+| `order_cancelled` | Customer/Admin | Order cancelled |
+| `low_stock` | Admin | Product stock below threshold |
+| `new_review` | Admin | New product review submitted |
+| `payment_received` | Admin | Payment confirmed |
+
+### Features
+
+- Unread count badge on bell icon (caps at 99+)
+- Timestamp-relative display ("5m ago", "2h ago")
+- Click to mark as read
+- Firebase RTDB sync for real-time updates
+
+---
+
+## Customer Dashboard
+
+Route: `/account`
+
+Enhanced customer dashboard providing a central hub for account management.
+
+### Sections
+
+| Section | Description |
+|---------|-------------|
+| **Profile Completion** | Progress bar showing profile completeness; prompts for missing fields (name, phone, etc.) |
+| **Order Stats** | Summary cards: total orders, total spent, average order value |
+| **Wishlist Summary** | Quick view of wishlisted items with thumbnails; link to full wishlist |
+| **Address Management** | Add, edit, delete shipping addresses; set default address |
+| **Quick Actions** | Links to browse products, view order history, manage settings |
+
+### Layout
+
+- Sidebar navigation for account sub-sections
+- Mobile-responsive: collapses to stacked cards on small screens
+- Profile completion widget shown prominently until 100%
+
+---
+
+## Wishlist Enhancements
+
+File: `src/store/wishlist.ts`
+
+Extended wishlist functionality beyond basic add/remove.
+
+### New Capabilities
+
+| Feature | Description |
+|---------|-------------|
+| **Move to Cart** | Move a wishlisted item directly to cart (removes from wishlist) |
+| **Share Wishlist** | Generate a shareable link or send via email |
+| **Clear All** | Remove all items from wishlist with confirmation dialog |
+| **Stock Status** | Display real-time availability (In Stock / Low Stock / Out of Stock) on each item |
+
+### Stock Display
+
+Wishlist items show live stock status from the inventory store. Out-of-stock items are visually dimmed with a strikethrough price. "Move to Cart" is disabled for unavailable items.
+
+---
+
+## Settings
+
+### Store
+
+File: `src/store/settings.ts`
+
+Zustand store (`useSettingsStore`) managing configurable store settings with Firebase persistence.
+
+| Method | Purpose |
+|--------|---------|
+| `getSetting(key)` | Retrieve a single setting value |
+| `updateSetting(key, value)` | Update a setting (admin only) |
+| `getSettings()` | Retrieve all settings as a map |
+| `resetDefaults()` | Reset all settings to factory defaults |
+
+### Admin Page
+
+Route: `/admin/settings`
+
+6-tab settings interface:
+
+| Tab | Controls |
+|-----|----------|
+| **Store Info** | Store name, logo, tagline, contact email, phone, address |
+| **Shipping** | Free shipping threshold, flat rate cost, shipping methods |
+| **Tax** | Tax rate (%), tax display (inclusive/exclusive), tax regions |
+| **Email** | Sender name, reply-to address, email footer, template toggles |
+| **Features** | Toggle reviews, wishlist, notifications, search features on/off |
+| **Banners** | Hero banners for homepage — image URL, link, active/inactive |
+
+All settings persist to Firebase under `siteConfig/` and are accessible publicly for storefront rendering.
+
+---
+
+## Admin Analytics
+
+Route: `/admin/analytics`
+
+### Service
+
+File: `src/lib/analytics.ts`
+
+Computes aggregated metrics from orders and customer data.
+
+| Function | Returns |
+|----------|---------|
+| `getRevenueMetrics(dateRange)` | Total revenue, average order value, revenue trend |
+| `getOrderMetrics(dateRange)` | Order count, status distribution, fulfillment rate |
+| `getCustomerMetrics(dateRange)` | New customers, returning customers, customer growth |
+| `getTopProducts(limit)` | Top products by revenue and quantity sold |
+| `getLowStockAlerts(threshold)` | Products with stock below threshold |
+
+### Dashboard Sections
+
+| Section | Content |
+|---------|---------|
+| **Revenue Overview** | Total revenue, AOV, revenue trend chart (line/bar) |
+| **Orders** | Total orders, status breakdown pie chart, daily order trend |
+| **Customers** | New vs returning, growth chart |
+| **Top Products** | Ranked table with revenue, units sold, image |
+| **Low Stock Alerts** | Products below stock threshold with restock links |
+
+### Date Range Filtering
+
+Analytics can be filtered by: last 7 days, 30 days, 90 days, 12 months, custom range.
+
+---
+
+## Admin Product Management
+
+Enhanced product management capabilities in the admin panel.
+
+### Bulk Operations
+
+| Feature | Description |
+|---------|-------------|
+| **Bulk Select** | Checkbox selection for multiple products; select all / deselect all |
+| **Bulk Delete** | Delete selected products with confirmation dialog |
+| **Bulk Visibility** | Toggle visibility (publish/unpublish) for selected products |
+| **Bulk Collection** | Add/remove selected products from a collection |
+
+### Individual Product Actions
+
+| Action | Description |
+|--------|-------------|
+| **Duplicate Product** | Clone a product with all variants, images, and pricing (prefixed name) |
+| **Featured Toggle** | Mark/unmark product as featured for homepage display |
+
+### Collections Management
+
+| Feature | Description |
+|---------|-------------|
+| **Create Collection** | Name, slug, description, image |
+| **Edit Collection** | Update metadata, reorder products |
+| **Delete Collection** | Remove collection (products remain, unlinked) |
+| **Assign Products** | Drag-and-drop or bulk-assign products to collections |
+
+---
+
+## Email Templates
+
+File: `src/lib/email-templates.ts`
+
+9 HTML email templates for transactional emails, all using a consistent brand layout.
+
+| Template | Trigger | Recipient |
+|----------|---------|-----------|
+| `welcome` | User registration | Customer |
+| `passwordReset` | Password reset request | Customer |
+| `orderConfirmation` | Order placed successfully | Customer |
+| `orderShipped` | Order dispatched to carrier | Customer |
+| `orderDelivered` | Order delivered to customer | Customer |
+| `orderCancelled` | Order cancelled | Customer |
+| `orderReturn` | Return processed | Customer |
+| `lowStockAlert` | Product stock below threshold | Admin |
+| `newOrderAlert` | New order received | Admin |
+
+### Template Features
+
+- Responsive HTML layout (works in Gmail, Outlook, Apple Mail)
+- Brand header with logo and colors
+- Dynamic content blocks per template type
+- Plain-text fallback included
+- Order templates include itemized product list, totals, and tracking links
+
+---
+
+## Loading Skeletons
+
+File: `src/components/shared/skeletons.tsx`
+
+Collection of skeleton placeholder components for perceived performance during data loading.
+
+| Component | Usage |
+|-----------|-------|
+| `ProductCardSkeleton` | Product card placeholder (image, title, price) |
+| `ProductGridSkeleton` | Grid of `ProductCardSkeleton` (configurable count) |
+| `OrderCardSkeleton` | Order summary card placeholder |
+| `ReviewCardSkeleton` | Review card placeholder (avatar, stars, text) |
+| `DashboardCardSkeleton` | Admin dashboard metric card placeholder |
+| `TableSkeleton` | Generic table placeholder (configurable rows/columns) |
+| `PageSkeleton` | Full-page loading state (header + content blocks) |
+
+### Implementation
+
+- All skeletons use Tailwind `animate-pulse` with a subtle shimmer effect
+- Dimensions match the real components they replace (no layout shift)
+- Used with React Suspense boundaries for automatic loading states
+- Consistent `bg-muted` color across all skeletons
+
+---
+
 ## Firebase RTDB Rules
 
 File: `firebase-database-rules.json`
@@ -435,6 +770,9 @@ File: `firebase-database-rules.json`
 | `/users/$uid` | Owner or Admin | Owner or Admin |
 | `/carts/$uid` | Owner only | Owner only |
 | `/wishlists/$uid` | Owner only | Owner only |
+| `/reviews/$productId` | Public | Owner (create), Admin (moderate) |
+| `/notifications/$uid` | Owner or Admin | Owner or Admin |
+| `/siteConfig` | Public | Admin only |
 | **Default** | Deny | Deny |
 
 ---

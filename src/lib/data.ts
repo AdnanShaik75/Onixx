@@ -13,33 +13,9 @@ export const ANNOUNCEMENT_ITEMS = [
   "PREMIUM WATCHES & ACCESSORIES",
 ] as const;
 
-export type BadgeType = "BESTSELLER" | "SALE" | "NEW" | "LIMITED";
+import type { Product } from "@/lib/types";
 
-export interface Product {
-  id: string;
-  name: string;
-  category: string;
-  collection: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviewCount: number;
-  badge?: BadgeType;
-  image: string;
-  images: string[];
-  description: string;
-  features: string[];
-  specs: { label: string; value: string }[];
-  strapMaterial?: string;
-  caseMaterial?: string;
-  movement?: string;
-  waterResistance?: string;
-  caseSize?: string;
-  isBestSeller?: boolean;
-  isNewArrival?: boolean;
-  isLimitedEdition?: boolean;
-  stock: number;
-}
+export type { BadgeType, Product } from "@/lib/types";
 
 const img = (id: string, w = 600, h = 600) =>
   `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&q=80`;

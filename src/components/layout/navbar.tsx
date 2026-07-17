@@ -15,6 +15,7 @@ import { CartDrawer } from "./cart-drawer";
 import { SearchModal } from "./search-modal";
 import { AccountModal } from "./account-modal";
 import { SettingsPanel } from "./settings-panel";
+import { NotificationBell } from "./notification-bell";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -103,6 +104,8 @@ export function Navbar() {
                 </span>
               )}
             </Link>
+
+            <NotificationBell />
 
             <button
               onClick={() => setIsAccountOpen(true)}
