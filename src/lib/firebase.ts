@@ -47,3 +47,22 @@ export function saveToPath<T>(path: string, data: T): Promise<void> {
   if (!db) return Promise.resolve();
   return set(ref(db, path), data);
 }
+
+export async function fetchFromPath<T>(path: string): Promise<T | null> {
+  const databaseURL = firebaseConfig.databaseURL;
+  if (!databaseURL || !isConfigured) return null;
+  try {
+    const res = await fetch(`${databaseURL}/${path}.json`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data as T | null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchProductFromFirebase(id: string) {
+  const all = await fetchFromPath<Array<{ id: string } & Record<string, unknown>>>("products");
+  if (!Array.isArray(all)) return null;
+  return all.find((p) => p?.id === id) ?? null;
+}

@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
-import { getProduct, ALL_PRODUCTS } from "@/lib/data";
+import { getProduct, ALL_PRODUCTS, type Product } from "@/lib/data";
 import { ProductInfo } from "@/components/shared/product-info";
+import { fetchProductFromFirebase } from "@/lib/firebase";
+
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return ALL_PRODUCTS.map((product) => ({ id: product.id }));
@@ -8,7 +11,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = getProduct(id);
+  const product = getProduct(id) ?? (await fetchProductFromFirebase(id)) as Product | null;
   if (!product) return { title: "Product Not Found" };
   return {
     title: `${product.name} | ONIXX`,
@@ -18,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = getProduct(id);
+  const product = getProduct(id) ?? (await fetchProductFromFirebase(id)) as Product | null;
   if (!product) notFound();
 
   return (

@@ -80,12 +80,12 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50, x: 50 }}
-      animate={{ opacity: 1, y: 0, x: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      className="fixed bottom-6 right-6 z-[100] px-5 py-3 bg-foreground text-background text-sm font-medium rounded-[2px] shadow-lg flex items-center gap-2"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 bg-green-600 text-white text-sm font-medium rounded-[2px] shadow-lg flex items-center gap-2"
     >
-      <CheckCircle2 className="w-4 h-4 text-green-400" />
+      <CheckCircle2 className="w-4 h-4" />
       {message}
     </motion.div>
   );
