@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { Product } from "@/lib/data";
 import { ALL_PRODUCTS } from "@/lib/data";
 import { subscribeToPath, saveToPath, isConfigured } from "@/lib/firebase";
+import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
 
 interface ProductState {
   products: Product[];
@@ -41,7 +42,13 @@ export const useProductStore = create<ProductState>()(
 
       _syncFromFirebase: (products) => {
         if (Array.isArray(products) && products.every((p) => p && p.id && p.name && typeof p.price === "number")) {
-          set({ products });
+          const withSlugs = products.map((p) => {
+            if (!p.slug) {
+              return { ...p, slug: ensureUniqueSlug(generateSlug(p.name), products, p.id) };
+            }
+            return p;
+          });
+          set({ products: withSlugs });
         }
       },
     }),

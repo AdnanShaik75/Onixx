@@ -162,7 +162,7 @@ export default function WishlistPage() {
                     className="group"
                   >
                     <div className="relative aspect-square bg-card rounded-[2px] overflow-hidden border border-border group-hover:border-gold/30 transition-all duration-500">
-                      <Link href={`/watches/${product.id}`}>
+                      <Link href={`/watches/${product.slug}`}>
                         <Image
                           src={product.image}
                           alt={product.name}
@@ -186,7 +186,7 @@ export default function WishlistPage() {
                       <p className="text-[10px] tracking-[2px] uppercase text-gold font-medium">
                         {product.category}
                       </p>
-                      <Link href={`/watches/${product.id}`}>
+                      <Link href={`/watches/${product.slug}`}>
                         <h3 className="text-base font-medium text-foreground group-hover:text-gold transition-colors duration-300">
                           {product.name}
                         </h3>

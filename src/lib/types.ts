@@ -6,6 +6,7 @@ export type BadgeType = "BESTSELLER" | "SALE" | "NEW" | "LIMITED";
 
 export interface Product {
   id: string;
+  slug: string;
   name: string;
   category: string;
   collection: string;

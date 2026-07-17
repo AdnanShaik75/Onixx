@@ -71,7 +71,7 @@ export default function CartPage() {
                 className="flex gap-4 lg:gap-6 p-4 lg:p-6 bg-card border border-border rounded-[2px]"
               >
                 <Link
-                  href={`/watches/${item.product.id}`}
+                  href={`/watches/${item.product.slug}`}
                   className="w-24 h-24 lg:w-32 lg:h-32 bg-background rounded-[2px] overflow-hidden border border-border flex-shrink-0"
                 >
                   <Image
@@ -90,7 +90,7 @@ export default function CartPage() {
                         {item.product.category}
                       </p>
                       <Link
-                        href={`/watches/${item.product.id}`}
+                        href={`/watches/${item.product.slug}`}
                         className="text-base font-medium text-foreground hover:text-gold transition-colors"
                       >
                         {item.product.name}

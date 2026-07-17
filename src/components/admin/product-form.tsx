@@ -6,6 +6,8 @@ import { X, Save, Upload, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadImage, uploadImages } from "@/lib/firebase";
+import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
+import { useProductStore } from "@/store/products";
 import type { Product } from "@/lib/data";
 
 interface ProductFormProps {
@@ -16,6 +18,7 @@ interface ProductFormProps {
 
 const emptyProduct: Product = {
   id: "",
+  slug: "",
   name: "",
   category: "AUTOMATIC",
   collection: "signature",
@@ -41,6 +44,7 @@ const badges = ["", "BESTSELLER", "SALE", "NEW", "LIMITED"];
 
 export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
   const [form, setForm] = useState<Product>(() => product ?? emptyProduct);
+  const products = useProductStore((s) => s.products);
   const [featuresText, setFeaturesText] = useState(() =>
     product ? product.features.join("\n") : ""
   );
@@ -77,10 +81,12 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
       .filter(Boolean);
 
     const id = form.id || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const slug = form.slug || ensureUniqueSlug(generateSlug(form.name), products, form.id || undefined);
 
     onSave({
       ...form,
       id,
+      slug,
       features,
       specs,
       images: images.length > 0 ? images : [form.image],
@@ -137,11 +143,29 @@ export function ProductForm({ product, onSave, onClose }: ProductFormProps) {
                 <label className="text-xs text-muted">Product Name</label>
                 <Input
                   value={form.name}
-                  onChange={(e) => update("name", e.target.value)}
+                  onChange={(e) => {
+                    update("name", e.target.value);
+                    if (!product) {
+                      const slug = ensureUniqueSlug(generateSlug(e.target.value), products);
+                      update("slug", slug);
+                    }
+                  }}
                   placeholder="Royal Chronograph"
                   required
                   className="mt-1"
                 />
+              </div>
+              <div>
+                <label className="text-xs text-muted">URL Slug</label>
+                <Input
+                  value={form.slug}
+                  onChange={(e) => update("slug", e.target.value)}
+                  placeholder="royal-chronograph"
+                  className="mt-1 font-mono text-xs"
+                />
+                <p className="text-[10px] text-muted mt-1">
+                  /watches/{form.slug || "product-slug"}
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

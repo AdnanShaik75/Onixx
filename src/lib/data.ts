@@ -23,6 +23,7 @@ const img = (id: string, w = 600, h = 600) =>
 export const ALL_PRODUCTS: Product[] = [
   {
     id: "royal-chronograph",
+    slug: "royal-chronograph",
     name: "Royal Chronograph",
     category: "AUTOMATIC",
     collection: "signature",
@@ -63,6 +64,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "heritage-classic",
+    slug: "heritage-classic",
     name: "Heritage Classic",
     category: "QUARTZ",
     collection: "heritage",
@@ -103,6 +105,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "midnight-automatic",
+    slug: "midnight-automatic",
     name: "Midnight Automatic",
     category: "AUTOMATIC",
     collection: "signature",
@@ -143,6 +146,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "sovereign-tourbillon",
+    slug: "sovereign-tourbillon",
     name: "Sovereign Tourbillon",
     category: "MANUAL WIND",
     collection: "skeleton",
@@ -183,6 +187,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "apex-diver",
+    slug: "apex-diver",
     name: "Apex Diver Pro",
     category: "DIVER",
     collection: "signature",
@@ -223,6 +228,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "zenith-perpetual",
+    slug: "zenith-perpetual",
     name: "Zenith Perpetual",
     category: "AUTOMATIC",
     collection: "heritage",
@@ -263,6 +269,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "noir-dress",
+    slug: "noir-dress",
     name: "Noir Dress Elite",
     category: "QUARTZ",
     collection: "heritage",
@@ -300,6 +307,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "chronos-aviator",
+    slug: "chronos-aviator",
     name: "Chronos Aviator",
     category: "AUTOMATIC",
     collection: "signature",
@@ -340,6 +348,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "nocturne-skeleton",
+    slug: "nocturne-skeleton",
     name: "Nocturne Skeleton",
     category: "AUTOMATIC",
     collection: "skeleton",
@@ -380,6 +389,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "emperor-grand",
+    slug: "emperor-grand",
     name: "Emperor Grand Complication",
     category: "MANUAL WIND",
     collection: "skeleton",
@@ -420,6 +430,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "titan-sport",
+    slug: "titan-sport",
     name: "Titan Sport",
     category: "AUTOMATIC",
     collection: "signature",
@@ -459,6 +470,7 @@ export const ALL_PRODUCTS: Product[] = [
   },
   {
     id: "meridian-world",
+    slug: "meridian-world",
     name: "Meridian World Timer",
     category: "AUTOMATIC",
     collection: "heritage",

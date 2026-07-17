@@ -49,6 +49,7 @@ import { ORDER_STATUS_COLORS, type OrderStatus } from "@/lib/types";
 import { useActivityStore } from "@/store/activity";
 import { useSiteConfig, DEFAULT_HERO_IMAGE } from "@/store/site-config";
 import { formatPrice } from "@/lib/utils";
+import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ProductForm } from "@/components/admin/product-form";
@@ -332,6 +333,7 @@ export default function AdminPage() {
     const duplicate: Product = {
       ...product,
       id: `${product.id}-copy-${Date.now()}`,
+      slug: ensureUniqueSlug(`${product.slug}-copy`, products),
       name: `${product.name} (Copy)`,
     };
     addProduct(duplicate);

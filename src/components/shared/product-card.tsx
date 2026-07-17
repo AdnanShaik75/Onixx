@@ -27,7 +27,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
       className="group cursor-pointer"
     >
-      <Link href={`/watches/${product.id}`}>
+      <Link href={`/watches/${product.slug}`}>
         <div className="relative aspect-square bg-card rounded-[2px] overflow-hidden border border-border group-hover:border-gold/30 transition-all duration-500">
           <Image
             src={product.image}
