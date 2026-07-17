@@ -224,3 +224,104 @@ admin.auth().setCustomUserClaims("USER_UID", { admin: true });
 - [x] Admin routes protected by proxy
 - [x] 403 page for unauthorized users
 - [x] Error boundaries for runtime errors
+- [x] CSRF protection on authenticated API routes
+- [x] Rate limiting on login endpoint
+- [x] Security headers (CSP, HSTS, X-Frame-Options, etc.)
+
+---
+
+## Admin Promotion
+
+Use the `create-admin` script to grant admin access to a user:
+
+```bash
+npx tsx scripts/create-admin.ts admin@onixx.com
+npx tsx scripts/create-admin.ts <uid>
+```
+
+The script:
+1. Looks up the user by email or UID
+2. Sets the `admin: true` custom claim
+3. Verifies the claim was applied
+4. Prints status messages
+
+**After running**, the user must sign out and sign back in for the claim to take effect.
+
+### Setup Steps
+
+1. Create the user in Firebase Console (Authentication > Users)
+2. Run the script: `npx tsx scripts/create-admin.ts user@email.com`
+3. Have the user sign in at `/admin/login`
+
+---
+
+## CSRF Protection
+
+All authenticated POST/PUT/PATCH/DELETE endpoints require a CSRF token.
+
+### How It Works
+
+1. Server generates an HMAC-based CSRF token bound to the user's UID
+2. Token is set as an HTTP-only cookie (`__csrf`)
+3. Client reads the token and sends it in the `x-csrf-token` header
+4. Server validates the token matches the session
+
+### Implementation
+
+- `lib/csrf.ts` — Token generation, validation, cookie management
+- Tokens expire after 1 hour
+- Tokens are bound to the user's UID (can't be used across sessions)
+
+---
+
+## Rate Limiting
+
+Protected endpoint: `/api/auth/login`
+
+### Configuration
+
+| Limit | Value |
+|-------|-------|
+| Window | 15 minutes |
+| Max attempts (per IP) | 20 |
+| Lockout duration | 30 minutes |
+
+### Behavior
+
+- IP-based tracking via `x-forwarded-for` header
+- Failed login attempts are recorded
+- After `maxAttempts`, the IP is locked out for `lockoutMs`
+- Successful logins reset the counter
+- Lockout expires automatically
+
+### Implementation
+
+- `lib/rate-limit.ts` — Modular, reusable rate limiter
+- In-memory store (resets on server restart)
+- Supports multiple namespaces for different endpoints
+- Automatic cleanup of expired entries
+
+---
+
+## Security Headers
+
+Configured in `next.config.ts`:
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| Content-Security-Policy | Restrictive policy | Prevents XSS, data injection |
+| X-Frame-Options | DENY | Prevents clickjacking |
+| X-Content-Type-Options | nosniff | Prevents MIME sniffing |
+| Referrer-Policy | strict-origin-when-cross-origin | Controls referrer info |
+| Permissions-Policy | Deny camera, mic, geo | Restricts browser features |
+| Strict-Transport-Security | max-age=63072000; includeSubDomains; preload | Forces HTTPS |
+| X-DNS-Prefetch-Control | on | Improves DNS lookup performance |
+
+### CSP Breakdown
+
+- Scripts: self + inline + eval (required for Next.js)
+- Styles: self + inline + Google Fonts
+- Images: self, data:, Unsplash, Google APIs
+- Fonts: self, Google Fonts
+- Connect: self, Firebase RTDB, Auth APIs
+- Frame: none (embedded content blocked)

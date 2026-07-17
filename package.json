@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint",
-    "test": "jest"
+    "test": "jest",
+    "create-admin": "npx tsx scripts/create-admin.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
