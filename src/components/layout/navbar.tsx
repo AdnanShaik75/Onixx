@@ -45,7 +45,7 @@ export function Navbar() {
         <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between px-6 lg:px-12">
           <Link href="/" className="flex-shrink-0 group" aria-label="ONIXX Home">
             <Image
-              src="/Onixx/logo.svg"
+              src="/logo.svg"
               alt="ONIXX"
               width={140}
               height={36}

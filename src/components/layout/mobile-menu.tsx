@@ -36,7 +36,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <div className="flex items-center justify-between h-16 lg:h-[90px] px-6 border-b border-border">
               <Link href="/" onClick={onClose} aria-label="ONIXX Home">
                 <Image
-                  src="/Onixx/logo.svg"
+                  src="/logo.svg"
                   alt="ONIXX"
                   width={110}
                   height={28}

@@ -18,7 +18,7 @@ export function Footer() {
           <div>
             <Link href="/" aria-label="ONIXX Home" className="inline-block mb-6">
               <Image
-                src="/Onixx/logo.svg"
+                src="/logo.svg"
                 alt="ONIXX"
                 width={120}
                 height={32}
