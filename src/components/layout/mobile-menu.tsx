@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { X, ArrowLeft } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/data";
@@ -34,10 +35,13 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           >
             <div className="flex items-center justify-between h-16 lg:h-[90px] px-6 border-b border-border">
               <Link href="/" onClick={onClose} aria-label="ONIXX Home">
-                <img
+                <Image
                   src="/Onixx/logo.svg"
                   alt="ONIXX"
+                  width={110}
+                  height={28}
                   className="h-7 w-auto"
+                  unoptimized
                 />
               </Link>
               <button

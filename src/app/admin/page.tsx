@@ -49,7 +49,7 @@ import { Input } from "@/components/ui/input";
 import { ProductForm } from "@/components/admin/product-form";
 import type { Product } from "@/lib/data";
 
-const ADMIN_PASSWORD = "Onixx@2005";
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "Onixx@2005";
 const LOW_STOCK_THRESHOLD = 5;
 
 const navItems = [

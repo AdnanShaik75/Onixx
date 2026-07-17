@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { FOOTER_SHOP, FOOTER_SUPPORT, FOOTER_COMPANY } from "@/lib/data";
 
@@ -16,10 +17,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
           <div>
             <Link href="/" aria-label="ONIXX Home" className="inline-block mb-6">
-              <img
+              <Image
                 src="/Onixx/logo.svg"
                 alt="ONIXX"
+                width={120}
+                height={32}
                 className="h-8 w-auto"
+                unoptimized
               />
             </Link>
             <p className="text-sm text-muted leading-relaxed mb-8 max-w-[280px]">

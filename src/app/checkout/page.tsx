@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { BackButton } from "@/components/shared/back-button";
 import { useCartStore } from "@/store/cart";
+import { useOrderStore } from "@/store/orders";
+import { useProductStore } from "@/store/products";
+import { useActivityStore } from "@/store/activity";
 import { formatPrice } from "@/lib/utils";
 
 interface FormData {
@@ -51,6 +54,9 @@ const initialFormData: FormData = {
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCartStore();
+  const { addOrder } = useOrderStore();
+  const { updateProduct } = useProductStore();
+  const { addEntry } = useActivityStore();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,6 +175,32 @@ export default function CheckoutPage() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const generatedOrderId = `ONX-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+
+    const address = `${formData.address1}${formData.address2 ? ", " + formData.address2 : ""}, ${formData.city}, ${formData.state} ${formData.zip}`;
+
+    items.forEach((item) => {
+      addOrder({
+        id: `${generatedOrderId}-${item.product.id}`,
+        customer: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        product: item.product.name,
+        productId: item.product.id,
+        amount: item.product.price * item.quantity,
+        status: "Processing",
+        date: new Date().toISOString().split("T")[0],
+        address,
+      });
+      updateProduct(item.product.id, {
+        stock: Math.max(0, item.product.stock - item.quantity),
+      });
+    });
+
+    addEntry({
+      action: "New Order",
+      detail: `${generatedOrderId} placed by ${formData.firstName} ${formData.lastName}`,
+      type: "order",
+    });
+
     setOrderId(generatedOrderId);
     clearCart();
     setOrderComplete(true);

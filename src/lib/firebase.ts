@@ -13,7 +13,12 @@ const firebaseConfig = {
 
 const isConfigured =
   firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
   firebaseConfig.databaseURL &&
+  firebaseConfig.projectId &&
+  firebaseConfig.storageBucket &&
+  firebaseConfig.messagingSenderId &&
+  firebaseConfig.appId &&
   firebaseConfig.apiKey !== "your_api_key_here";
 
 let app: ReturnType<typeof initializeApp> | null = null;

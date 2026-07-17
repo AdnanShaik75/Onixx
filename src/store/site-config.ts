@@ -32,10 +32,10 @@ export const useSiteConfig = create<SiteConfigState>()(
       },
 
       _syncFromFirebase: (data) => {
-        if (data) {
+        if (data && typeof data === "object") {
           set({
-            heroImage: data.heroImage ?? DEFAULT_HERO_IMAGE,
-            heroImageType: data.heroImageType ?? "url",
+            heroImage: typeof data.heroImage === "string" ? data.heroImage : DEFAULT_HERO_IMAGE,
+            heroImageType: data.heroImageType === "upload" ? "upload" : "url",
           });
         }
       },

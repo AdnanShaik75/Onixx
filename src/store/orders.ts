@@ -29,6 +29,7 @@ const INITIAL_ORDERS: Order[] = [
 
 interface OrderState {
   orders: Order[];
+  addOrder: (order: Order) => void;
   updateStatus: (id: string, status: OrderStatus) => void;
   _syncFromFirebase: (orders: Order[] | null) => void;
 }
@@ -40,6 +41,12 @@ export const useOrderStore = create<OrderState>()(
     (set, get) => ({
       orders: [...INITIAL_ORDERS],
 
+      addOrder: (order) => {
+        const updated = [...get().orders, order];
+        set({ orders: updated });
+        saveToPath("orders", updated);
+      },
+
       updateStatus: (id, status) => {
         const updated = get().orders.map((o) =>
           o.id === id ? { ...o, status } : o
@@ -49,7 +56,7 @@ export const useOrderStore = create<OrderState>()(
       },
 
       _syncFromFirebase: (orders) => {
-        if (orders) {
+        if (Array.isArray(orders) && orders.every((o) => o && o.id && o.customer)) {
           set({ orders });
         }
       },

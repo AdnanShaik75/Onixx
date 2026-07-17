@@ -40,7 +40,7 @@ export const useProductStore = create<ProductState>()(
       },
 
       _syncFromFirebase: (products) => {
-        if (products) {
+        if (Array.isArray(products) && products.every((p) => p && p.id && p.name && typeof p.price === "number")) {
           set({ products });
         }
       },

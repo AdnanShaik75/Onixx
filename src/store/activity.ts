@@ -47,7 +47,7 @@ export const useActivityStore = create<ActivityState>()(
       },
 
       _syncFromFirebase: (entries) => {
-        if (entries) {
+        if (Array.isArray(entries) && entries.every((e) => e && e.id && e.action)) {
           set({ entries });
         }
       },

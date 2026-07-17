@@ -293,8 +293,6 @@ export const ALL_PRODUCTS: Product[] = [
     price: 286350,
     rating: 4.5,
     reviewCount: 42,
-    badge: "NEW",
-    isNewArrival: true,
     image: img("1639037689659-05be63e715c0"),
     images: [
       img("1639037689659-05be63e715c0"),
@@ -532,40 +530,31 @@ export const BEST_SELLERS = ALL_PRODUCTS.filter((p) => p.isBestSeller);
 
 export const COLLECTIONS = [
   {
-    id: "classic",
-    title: "Classic Watches",
-    description: "Elegant designs for every occasion",
-    longDescription:
-      "Our classic collection features timeless watch designs that pair effortlessly with any outfit. From minimalist dials to refined details, these pieces are built for everyday elegance.",
-    image: "https://images.unsplash.com/photo-1526045431048-f857369baa09?w=800&h=1000&fit=crop&q=80",
-    count: ALL_PRODUCTS.filter((p) => p.collection === "heritage").length,
-  },
-  {
-    id: "chronograph",
-    title: "Chronograph Watches",
+    id: "signature",
+    title: "Signature Collection",
     description: "Performance meets timeless style",
     longDescription:
-      "Chronograph watches combine precise timing functionality with sophisticated design. Whether for sport or style, these watches deliver performance and elegance in equal measure.",
+      "Our Signature collection combines bold design with horological excellence. Featuring chronographs, divers, and sport watches that deliver performance and elegance in equal measure.",
     image: "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=800&h=1000&fit=crop&q=80",
     count: ALL_PRODUCTS.filter((p) => p.collection === "signature").length,
   },
   {
-    id: "skeleton",
-    title: "Smart Watches",
-    description: "Modern features with refined aesthetics",
+    id: "heritage",
+    title: "Heritage Collection",
+    description: "Elegant designs for every occasion",
     longDescription:
-      "Smart watches that blend modern technology with clean, refined design. Stay connected with features that complement your lifestyle without compromising on style.",
-    image: "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&h=1000&fit=crop&q=80",
-    count: ALL_PRODUCTS.filter((p) => p.collection === "skeleton").length,
+      "Our Heritage collection features timeless watch designs that pair effortlessly with any outfit. From minimalist dials to refined details, these pieces are built for everyday elegance.",
+    image: "https://images.unsplash.com/photo-1526045431048-f857369baa09?w=800&h=1000&fit=crop&q=80",
+    count: ALL_PRODUCTS.filter((p) => p.collection === "heritage").length,
   },
   {
-    id: "accessories",
-    title: "Accessories",
-    description: "Complete your everyday look",
+    id: "skeleton",
+    title: "Skeleton Collection",
+    description: "The art of visible mechanics",
     longDescription:
-      "From leather straps to premium sunglass collections, our accessories are curated to complement your watches and elevate your everyday style.",
-    image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&h=1000&fit=crop&q=80",
-    count: 0,
+      "Our Skeleton collection reveals the soul of watchmaking through fully exposed movements. Each piece showcases intricate hand-finished bridges, anglage, and mirror polishing — mechanical artistry at its finest.",
+    image: "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&h=1000&fit=crop&q=80",
+    count: ALL_PRODUCTS.filter((p) => p.collection === "skeleton").length,
   },
 ];
 
@@ -605,7 +594,6 @@ export const FOOTER_SHOP = [
   { label: "All Products", href: "/watches" },
   { label: "New Arrivals", href: "/new-arrivals" },
   { label: "Best Sellers", href: "/best-sellers" },
-  { label: "Accessories", href: "/accessories" },
   { label: "Gift Cards", href: "/gift-cards" },
 ];
 
@@ -613,13 +601,13 @@ export const FOOTER_SUPPORT = [
   { label: "Contact Us", href: "/contact" },
   { label: "FAQs", href: "/faqs" },
   { label: "Shipping Policy", href: "/shipping" },
-  { label: "Returns Policy", href: "/returns" },
-  { label: "Track Order", href: "/track-order" },
+  { label: "Returns Policy", href: "/warranty" },
+  { label: "Track Order", href: "/contact" },
 ];
 
 export const FOOTER_COMPANY = [
   { label: "About ONIXX", href: "/story" },
   { label: "Collections", href: "/collections" },
-  { label: "Blog", href: "/blog" },
+  { label: "Press", href: "/press" },
   { label: "Contact", href: "/contact" },
 ];

@@ -31,7 +31,7 @@ describe("Data", () => {
   it("getCollection returns a collection by id", () => {
     const collection = getCollection("heritage");
     expect(collection).toBeDefined();
-    expect(collection?.title).toBe("Heritage");
+    expect(collection?.title).toBe("Heritage Collection");
   });
 
   it("getCollection returns undefined for unknown id", () => {

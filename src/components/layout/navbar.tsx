@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, User, Heart, ShoppingBag, Menu, Settings } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/data";
@@ -43,10 +44,13 @@ export function Navbar() {
       >
         <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between px-6 lg:px-12">
           <Link href="/" className="flex-shrink-0 group" aria-label="ONIXX Home">
-            <img
+            <Image
               src="/Onixx/logo.svg"
               alt="ONIXX"
+              width={140}
+              height={36}
               className="h-7 lg:h-9 w-auto group-hover:opacity-80 transition-opacity duration-300"
+              unoptimized
             />
           </Link>
 
