@@ -41,7 +41,8 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useProductStore } from "@/store/products";
-import { useOrderStore, type OrderStatus } from "@/store/orders";
+import { useOrderStore } from "@/store/orders";
+import { ORDER_STATUS_COLORS, type OrderStatus } from "@/lib/types";
 import { useActivityStore } from "@/store/activity";
 import { useSiteConfig, DEFAULT_HERO_IMAGE } from "@/store/site-config";
 import { formatPrice } from "@/lib/utils";
@@ -63,12 +64,9 @@ const navItems = [
 
 function OrderStatusBadge({ status }: { status: string }) {
   return (
-    <span className={`text-xs px-2 py-1 rounded-[2px] ${
-      status === "Delivered" ? "bg-green-500/10 text-green-500"
-      : status === "Shipped" ? "bg-blue-500/10 text-blue-500"
-      : status === "Cancelled" ? "bg-red-500/10 text-red-500"
-      : "bg-yellow-500/10 text-yellow-500"
-    }`}>{status}</span>
+    <span className={`text-xs px-2 py-1 rounded-[2px] font-medium ${ORDER_STATUS_COLORS[status as OrderStatus] ?? "bg-gray-500/10 text-gray-400"}`}>
+      {status}
+    </span>
   );
 }
 
@@ -176,7 +174,7 @@ export default function AdminPage() {
   const monthlyRevenue = useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
     const base = [3200000, 4100000, 3800000, 5200000, 4900000, 6100000];
-    const current = orders.reduce((sum, o) => sum + o.amount, 0);
+    const current = orders.reduce((sum, o) => sum + o.total, 0);
     return [...base, current].map((v, i) => ({ month: months[i], value: v }));
   }, [orders]);
 
@@ -184,23 +182,29 @@ export default function AdminPage() {
 
   const orderStats = useMemo(() => {
     const total = orders.length;
-    const processing = orders.filter(o => o.status === "Processing").length;
+    const pending = orders.filter(o => o.status === "Pending Payment").length;
+    const confirmed = orders.filter(o => o.status === "Confirmed").length;
+    const packed = orders.filter(o => o.status === "Packed").length;
     const shipped = orders.filter(o => o.status === "Shipped").length;
     const delivered = orders.filter(o => o.status === "Delivered").length;
     const cancelled = orders.filter(o => o.status === "Cancelled").length;
-    const totalRevenue = orders.reduce((s, o) => s + o.amount, 0);
-    return { total, processing, shipped, delivered, cancelled, totalRevenue };
+    const returned = orders.filter(o => o.status === "Returned").length;
+    const refunded = orders.filter(o => o.status === "Refunded").length;
+    const totalRevenue = orders.filter(o => o.status !== "Cancelled" && o.status !== "Refunded").reduce((s, o) => s + o.total, 0);
+    return { total, pending, confirmed, packed, shipped, delivered, cancelled, returned, refunded, totalRevenue };
   }, [orders]);
 
   const customers = useMemo(() => {
     const map: Record<string, { name: string; email: string; orders: number; totalSpent: number; lastOrder: string }> = {};
     orders.forEach((o) => {
-      if (!map[o.customer]) {
-        map[o.customer] = { name: o.customer, email: o.email, orders: 0, totalSpent: 0, lastOrder: o.date };
+      const name = o.shippingAddress ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : "Unknown";
+      const email = o.shippingAddress?.email ?? o.items[0]?.productName ?? "";
+      if (!map[name + email]) {
+        map[name + email] = { name, email, orders: 0, totalSpent: 0, lastOrder: o.createdAt };
       }
-      map[o.customer].orders++;
-      map[o.customer].totalSpent += o.amount;
-      if (o.date > map[o.customer].lastOrder) map[o.customer].lastOrder = o.date;
+      map[name + email].orders++;
+      map[name + email].totalSpent += o.total;
+      if (o.createdAt > map[name + email].lastOrder) map[name + email].lastOrder = o.createdAt;
     });
     return Object.values(map);
   }, [orders]);
@@ -221,7 +225,11 @@ export default function AdminPage() {
     let list = [...orders];
     if (orderSearch) {
       const q = orderSearch.toLowerCase();
-      list = list.filter(o => o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.product.toLowerCase().includes(q));
+      list = list.filter(o => {
+        const customerName = o.shippingAddress ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : "";
+        const productNames = o.items.map(i => i.productName).join(" ");
+        return o.id.toLowerCase().includes(q) || customerName.toLowerCase().includes(q) || productNames.toLowerCase().includes(q);
+      });
     }
     if (orderStatusFilter !== "ALL") {
       list = list.filter(o => o.status === orderStatusFilter);
@@ -267,7 +275,7 @@ export default function AdminPage() {
     router.push("/admin/login");
   };
 
-  const totalRevenue = products.reduce((sum, p) => sum + p.price * p.stock, 0);
+  const dashboardRevenue = orders.filter(o => o.status !== "Cancelled" && o.status !== "Refunded").reduce((sum, o) => sum + o.total, 0);
 
   const handleSave = (product: Product) => {
     if (editingProduct) {
@@ -307,15 +315,20 @@ export default function AdminPage() {
   };
 
   const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
-    updateStatus(orderId, newStatus);
+    updateStatus(orderId, newStatus, "admin");
     const order = orders.find(o => o.id === orderId);
-    addEntry({ action: `Order ${newStatus}`, detail: `${orderId} ${newStatus.toLowerCase()} for ${order?.customer}`, type: "order" });
-    showToast(`${orderId} marked as ${newStatus}`);
+    const customerName = order?.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : "Unknown";
+    addEntry({ action: `Order ${newStatus}`, detail: `${order?.orderNumber ?? orderId} ${newStatus.toLowerCase()} for ${customerName}`, type: "order" });
+    showToast(`${order?.orderNumber ?? orderId} marked as ${newStatus}`);
   };
 
   const exportOrders = () => {
-    const csv = ["Order ID,Customer,Product,Amount,Status,Date",
-      ...filteredOrders.map(o => `${o.id},${o.customer},${o.product},${o.amount},${o.status},${o.date}`)
+    const csv = ["Order Number,Customer,Items,Amount,Status,Date",
+      ...filteredOrders.map(o => {
+        const name = o.shippingAddress ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : "Unknown";
+        const items = o.items.map(i => i.productName).join("; ");
+        return `${o.orderNumber},${name},"${items}",${o.total},${o.status},${o.createdAt}`;
+      })
     ].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -493,7 +506,7 @@ export default function AdminPage() {
               {/* Stats Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
                 {[
-                  { icon: DollarSign, label: "Revenue", value: formatPrice(totalRevenue), change: "+12.5%" },
+                  { icon: DollarSign, label: "Revenue", value: formatPrice(dashboardRevenue), change: "+12.5%" },
                   { icon: ShoppingCart, label: "Orders", value: orderStats.total.toString(), change: "+8.2%" },
                   { icon: Package, label: "Products", value: products.length.toString(), change: `+${products.filter(p => p.isNewArrival).length}` },
                   { icon: Eye, label: "Customers", value: customers.length.toString(), change: "+15.3%" },
@@ -710,37 +723,45 @@ export default function AdminPage() {
                       <tr className="border-b border-border">
                         <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Order ID</th>
                         <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Customer</th>
-                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Product</th>
-                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Amount</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Items</th>
+                        <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Total</th>
                         <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Status</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.slice(0, 5).map((order) => (
-                        <tr key={order.id} className="border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors">
-                          <td className="px-6 py-4 text-sm text-gold font-mono">{order.id}</td>
-                          <td className="px-6 py-4 text-sm">{order.customer}</td>
-                          <td className="px-6 py-4 text-sm text-muted">{order.product}</td>
-                          <td className="px-6 py-4 text-sm">{formatPrice(order.amount)}</td>
-                          <td className="px-6 py-4"><OrderStatusBadge status={order.status} /></td>
-                        </tr>
-                      ))}
+                      {orders.slice(0, 5).map((order) => {
+                        const customerName = order.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : "Unknown";
+                        const itemNames = order.items.map(i => i.productName).join(", ");
+                        return (
+                          <tr key={order.id} className="border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors">
+                            <td className="px-6 py-4 text-sm text-gold font-mono">{order.orderNumber}</td>
+                            <td className="px-6 py-4 text-sm">{customerName}</td>
+                            <td className="px-6 py-4 text-sm text-muted truncate max-w-[200px]">{itemNames}</td>
+                            <td className="px-6 py-4 text-sm">{formatPrice(order.total)}</td>
+                            <td className="px-6 py-4"><OrderStatusBadge status={order.status} /></td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
 
                 <div className="md:hidden space-y-3">
-                  {orders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="p-4 bg-card border border-border rounded-[2px]">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gold font-mono">{order.id}</span>
-                        <OrderStatusBadge status={order.status} />
+                  {orders.slice(0, 5).map((order) => {
+                    const customerName = order.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : "Unknown";
+                    const itemNames = order.items.map(i => i.productName).join(", ");
+                    return (
+                      <div key={order.id} className="p-4 bg-card border border-border rounded-[2px]">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-gold font-mono">{order.orderNumber}</span>
+                          <OrderStatusBadge status={order.status} />
+                        </div>
+                        <p className="text-sm font-medium mb-1">{customerName}</p>
+                        <p className="text-xs text-muted mb-2 truncate">{itemNames}</p>
+                        <p className="text-sm font-medium">{formatPrice(order.total)}</p>
                       </div>
-                      <p className="text-sm font-medium mb-1">{order.customer}</p>
-                      <p className="text-xs text-muted mb-2">{order.product}</p>
-                      <p className="text-sm font-medium">{formatPrice(order.amount)}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1084,8 +1105,8 @@ export default function AdminPage() {
               <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 {[
                   { label: "Total", value: orderStats.total, color: "text-foreground" },
-                  { label: "Processing", value: orderStats.processing, color: "text-yellow-500" },
-                  { label: "Shipped", value: orderStats.shipped, color: "text-blue-500" },
+                  { label: "Confirmed", value: orderStats.confirmed, color: "text-blue-500" },
+                  { label: "Shipped", value: orderStats.shipped, color: "text-cyan-500" },
                   { label: "Delivered", value: orderStats.delivered, color: "text-green-500" },
                   { label: "Cancelled", value: orderStats.cancelled, color: "text-red-500" },
                 ].map((stat) => (
@@ -1114,10 +1135,9 @@ export default function AdminPage() {
                   className="h-10 px-3 bg-transparent border border-border rounded-[2px] text-xs tracking-wide text-muted focus:outline-none focus:border-gold/50"
                 >
                   <option value="ALL">All Status</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
-                  <option value="Cancelled">Cancelled</option>
+                  {Object.keys(ORDER_STATUS_COLORS).map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
                 </select>
                 <span className="text-xs text-muted">{filteredOrders.length} orders</span>
               </div>
@@ -1129,38 +1149,45 @@ export default function AdminPage() {
                     <tr className="border-b border-border">
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Order ID</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Customer</th>
-                      <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Product</th>
-                      <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Amount</th>
+                      <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Items</th>
+                      <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Total</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Status</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Date</th>
                       <th className="text-left px-6 py-3 text-xs tracking-[1px] uppercase text-muted font-medium">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredOrders.map((order) => (
-                      <tr key={order.id} className="border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-gold font-mono cursor-pointer" onClick={() => setSelectedOrder(selectedOrder === order.id ? null : order.id)}>
-                          {order.id}
-                        </td>
-                        <td className="px-6 py-4 text-sm">{order.customer}</td>
-                        <td className="px-6 py-4 text-sm text-muted">{order.product}</td>
-                        <td className="px-6 py-4 text-sm">{formatPrice(order.amount)}</td>
-                        <td className="px-6 py-4"><OrderStatusBadge status={order.status} /></td>
-                        <td className="px-6 py-4 text-xs text-muted">{order.date}</td>
-                        <td className="px-6 py-4">
-                          <select
-                            value={order.status}
-                            onChange={(e) => handleStatusUpdate(order.id, e.target.value as OrderStatus)}
-                            className="h-7 px-2 bg-transparent border border-border rounded-[2px] text-xs text-muted focus:outline-none focus:border-gold/50 cursor-pointer"
-                          >
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredOrders.map((order) => {
+                      const customerName = order.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : "Unknown";
+                      const itemNames = order.items.map(i => i.productName).join(", ");
+                      return (
+                        <tr key={order.id} className="border-b border-border/50 last:border-0 hover:bg-section/50 transition-colors">
+                          <td className="px-6 py-4 text-sm text-gold font-mono cursor-pointer" onClick={() => setSelectedOrder(selectedOrder === order.id ? null : order.id)}>
+                            {order.orderNumber}
+                          </td>
+                          <td className="px-6 py-4 text-sm">{customerName}</td>
+                          <td className="px-6 py-4 text-sm text-muted truncate max-w-[200px]">{itemNames}</td>
+                          <td className="px-6 py-4 text-sm">{formatPrice(order.total)}</td>
+                          <td className="px-6 py-4"><OrderStatusBadge status={order.status} /></td>
+                          <td className="px-6 py-4 text-xs text-muted">{new Date(order.createdAt).toLocaleDateString("en-IN")}</td>
+                          <td className="px-6 py-4">
+                            <select
+                              value={order.status}
+                              onChange={(e) => handleStatusUpdate(order.id, e.target.value as OrderStatus)}
+                              className="h-7 px-2 bg-transparent border border-border rounded-[2px] text-xs text-muted focus:outline-none focus:border-gold/50 cursor-pointer"
+                            >
+                              <option value="Confirmed">Confirmed</option>
+                              <option value="Packed">Packed</option>
+                              <option value="Shipped">Shipped</option>
+                              <option value="Delivered">Delivered</option>
+                              <option value="Cancelled">Cancelled</option>
+                              <option value="Returned">Returned</option>
+                              <option value="Refunded">Refunded</option>
+                            </select>
+                          </td>
+                        </tr>
+                      );
+                    })}
                     {filteredOrders.length === 0 && (
                       <tr><td colSpan={7} className="px-6 py-12 text-center text-sm text-muted">No orders found</td></tr>
                     )}
@@ -1170,29 +1197,36 @@ export default function AdminPage() {
 
               {/* Mobile Order Cards */}
               <div className="md:hidden space-y-3">
-                {filteredOrders.map((order) => (
-                  <div key={order.id} className="p-4 bg-card border border-border rounded-[2px]">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gold font-mono">{order.id}</span>
-                      <OrderStatusBadge status={order.status} />
+                {filteredOrders.map((order) => {
+                  const customerName = order.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : "Unknown";
+                  const itemNames = order.items.map(i => i.productName).join(", ");
+                  return (
+                    <div key={order.id} className="p-4 bg-card border border-border rounded-[2px]">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gold font-mono">{order.orderNumber}</span>
+                        <OrderStatusBadge status={order.status} />
+                      </div>
+                      <p className="text-sm font-medium mb-1">{customerName}</p>
+                      <p className="text-xs text-muted mb-2 truncate">{itemNames}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">{formatPrice(order.total)}</p>
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleStatusUpdate(order.id, e.target.value as OrderStatus)}
+                          className="h-7 px-2 bg-transparent border border-border rounded-[2px] text-[10px] text-muted focus:outline-none focus:border-gold/50"
+                        >
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="Packed">Packed</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                          <option value="Returned">Returned</option>
+                          <option value="Refunded">Refunded</option>
+                        </select>
+                      </div>
                     </div>
-                    <p className="text-sm font-medium mb-1">{order.customer}</p>
-                    <p className="text-xs text-muted mb-2">{order.product}</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">{formatPrice(order.amount)}</p>
-                      <select
-                        value={order.status}
-                        onChange={(e) => handleStatusUpdate(order.id, e.target.value as OrderStatus)}
-                        className="h-7 px-2 bg-transparent border border-border rounded-[2px] text-[10px] text-muted focus:outline-none focus:border-gold/50"
-                      >
-                        <option value="Processing">Processing</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Order Detail Modal */}
@@ -1200,30 +1234,36 @@ export default function AdminPage() {
                 {selectedOrder && (() => {
                   const order = orders.find(o => o.id === selectedOrder);
                   if (!order) return null;
+                  const customerName = order.shippingAddress ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : "Unknown";
+                  const customerEmail = order.shippingAddress?.email ?? "";
+                  const address = order.shippingAddress
+                    ? `${order.shippingAddress.line1}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zip}`
+                    : "";
+                  const itemNames = order.items.map(i => `${i.productName} x${i.quantity}`).join(", ");
                   return (
                     <>
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[60]" onClick={() => setSelectedOrder(null)} />
                       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md bg-card border border-border rounded-[2px] p-6 lg:p-8 z-[61]">
                         <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading), serif" }}>{order.id}</h3>
+                          <h3 className="text-lg font-semibold" style={{ fontFamily: "var(--font-heading), serif" }}>{order.orderNumber}</h3>
                           <button onClick={() => setSelectedOrder(null)} className="text-muted hover:text-foreground"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="space-y-4">
                           <div className="flex items-center gap-3">
-                            <CustomerAvatar name={order.customer} />
+                            <CustomerAvatar name={customerName} />
                             <div>
-                              <p className="text-sm font-medium">{order.customer}</p>
-                              <p className="text-xs text-muted">{order.email}</p>
+                              <p className="text-sm font-medium">{customerName}</p>
+                              <p className="text-xs text-muted">{customerEmail}</p>
                             </div>
                           </div>
                           <div className="p-3 bg-background rounded-[2px] space-y-2">
                             <div className="flex justify-between text-xs">
-                              <span className="text-muted">Product</span>
-                              <span className="text-foreground">{order.product}</span>
+                              <span className="text-muted">Items</span>
+                              <span className="text-foreground text-right truncate max-w-[200px]">{itemNames}</span>
                             </div>
                             <div className="flex justify-between text-xs">
-                              <span className="text-muted">Amount</span>
-                              <span className="text-foreground">{formatPrice(order.amount)}</span>
+                              <span className="text-muted">Total</span>
+                              <span className="text-foreground">{formatPrice(order.total)}</span>
                             </div>
                             <div className="flex justify-between text-xs">
                               <span className="text-muted">Status</span>
@@ -1231,11 +1271,11 @@ export default function AdminPage() {
                             </div>
                             <div className="flex justify-between text-xs">
                               <span className="text-muted">Date</span>
-                              <span className="text-foreground">{order.date}</span>
+                              <span className="text-foreground">{new Date(order.createdAt).toLocaleDateString("en-IN")}</span>
                             </div>
                             <div className="flex justify-between text-xs">
                               <span className="text-muted">Address</span>
-                              <span className="text-foreground text-right">{order.address}</span>
+                              <span className="text-foreground text-right">{address}</span>
                             </div>
                           </div>
                           <div>
@@ -1245,10 +1285,13 @@ export default function AdminPage() {
                               onChange={(e) => { handleStatusUpdate(order.id, e.target.value as OrderStatus); setSelectedOrder(null); }}
                               className="w-full h-9 px-3 bg-transparent border border-border rounded-[2px] text-sm focus:outline-none focus:border-gold/50"
                             >
-                              <option value="Processing">Processing</option>
+                              <option value="Confirmed">Confirmed</option>
+                              <option value="Packed">Packed</option>
                               <option value="Shipped">Shipped</option>
                               <option value="Delivered">Delivered</option>
                               <option value="Cancelled">Cancelled</option>
+                              <option value="Returned">Returned</option>
+                              <option value="Refunded">Refunded</option>
                             </select>
                           </div>
                         </div>
@@ -1568,7 +1611,7 @@ export default function AdminPage() {
                   </div>
                   <div className="p-3 bg-background rounded-[2px]">
                     <p className="text-xs text-muted mb-1">Active Orders</p>
-                    <p className="text-lg font-semibold">{orderStats.processing + orderStats.shipped}</p>
+                    <p className="text-lg font-semibold">{orderStats.confirmed + orderStats.packed + orderStats.shipped}</p>
                   </div>
                   <div className="p-3 bg-background rounded-[2px]">
                     <p className="text-xs text-muted mb-1">Total Revenue</p>

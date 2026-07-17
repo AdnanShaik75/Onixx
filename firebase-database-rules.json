@@ -38,6 +38,12 @@
         ".write": "auth != null && auth.uid === $uid"
       }
     },
+    "customers": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.admin === true)",
+        ".write": "auth != null && (auth.uid === $uid || auth.admin === true)"
+      }
+    },
     ".read": false,
     ".write": false
   }

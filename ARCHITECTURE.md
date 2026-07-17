@@ -110,7 +110,19 @@ src/
 │   ├── logger.ts            Structured logger
 │   ├── firebase.ts          Firebase Client SDK (browser)
 │   ├── data.ts              Static product/collection data
-│   └── utils.ts             Utility functions
+│   ├── utils.ts             Utility functions
+│   ├── pricing.ts           PricingEngine — calculatePricing / buildPricingInput
+│   ├── shipping.ts          ShippingProvider — FlatRateShippingProvider + singleton
+│   ├── order-number.ts      generateOrderNumber() → ONX-YYYYMMDD-000001
+│   ├── inventory.ts         Inventory helpers (buildInventoryItem, createReservation, etc.)
+│   └── types.ts             Shared TypeScript types (Order, OrderStatus, PricingInput, etc.)
+├── store/
+│   ├── inventory.ts         Zustand InventoryStore — stock + reservation system
+│   ├── orders.ts            Zustand order management
+│   ├── cart.ts              Zustand cart store
+│   ├── activity.ts          Zustand activity log
+│   ├── customer.ts          Zustand customer profile
+│   └── wishlist.ts          Zustand wishlist (if present)
 ├── proxy.ts                 Route protection (middleware)
 ├── app/
 │   ├── api/auth/
@@ -123,6 +135,8 @@ src/
 │   │   ├── unauthorized/    403 page
 │   │   ├── loading.tsx      Loading state
 │   │   └── error.tsx        Error boundary
+│   ├── checkout/
+│   │   └── page.tsx         Checkout flow (client)
 │   └── error.tsx            Global error boundary
 ```
 
@@ -132,6 +146,278 @@ src/
 2. **JWT Verification in Edge**: Uses `jose` library to verify Firebase ID tokens using Google's public X.509 certificates. No Firebase Admin SDK needed in Edge Runtime.
 3. **HTTP-only Cookies**: Session tokens stored in HTTP-only cookies, inaccessible to JavaScript. Prevents XSS attacks.
 4. **Firebase Client + Admin Split**: Client SDK for browser auth, Admin SDK for server-side operations.
+
+---
+
+## PricingEngine
+
+File: `src/lib/pricing.ts`
+
+Centralizes all price calculations for an order:
+
+```typescript
+calculatePricing(input: PricingInput): PricingResult
+buildPricingInput(items, shippingCost, taxRate?, discountAmount?): PricingInput
+```
+
+| Field | Source |
+|-------|--------|
+| `subtotal` | Sum of `unitPrice × quantity` across items |
+| `shipping` | Passed in (provided by `ShippingProvider`) |
+| `tax` | `subtotal × taxRate` (default 0) |
+| `discount` | Capped at `subtotal` (cannot exceed subtotal) |
+| `total` | `subtotal - discount + shipping + tax` (floor 0) |
+| `itemCount` | Total units across all items |
+
+Types (`PricingInput`, `PricingResult`) are defined in `src/lib/types.ts:190-204`.
+
+---
+
+## ShippingProvider
+
+File: `src/lib/shipping.ts`
+
+### Interface
+
+```typescript
+interface ShippingProvider {
+  name: string;
+  calculate(subtotal: number): ShippingCalculation;
+}
+```
+
+### FlatRateShippingProvider
+
+| Subtotal | Cost | Method |
+|----------|------|--------|
+| ≥ ₹500,000 | ₹0 | Free Shipping (3-7 days) |
+| < ₹500,000 | ₹999 | Standard Shipping (3-7 days) |
+
+### Singleton
+
+```typescript
+getShippingProvider(): ShippingProvider
+```
+
+Returns a single `FlatRateShippingProvider` instance (lazy-initialized).
+
+Types: `ShippingProvider` and `ShippingCalculation` in `src/lib/types.ts:162-172`.
+
+---
+
+## Order Numbers
+
+File: `src/lib/order-number.ts`
+
+```
+generateOrderNumber() → "ONX-YYYYMMDD-000001"
+```
+
+| Part | Description |
+|------|-------------|
+| `ONX` | Static prefix (brand abbreviation) |
+| `YYYYMMDD` | Current date (UTC) |
+| `000001` | Daily sequential counter (resets each day, 6-digit zero-padded) |
+
+Counter resets whenever the date changes. Thread-safe for single-process usage.
+
+---
+
+## Inventory Store
+
+File: `src/store/inventory.ts`
+
+Zustand store (`useInventoryStore`) managing stock with a reservation system:
+
+### Reservation Lifecycle
+
+```
+reserveStock(productId, quantity, orderId) → StockReservation | null
+       │
+       ├── payment succeeds → confirmReservation(reservationId)
+       │     Deducts stock from total, removes reservation
+       │
+       └── payment fails / abandoned → releaseReservation(reservationId)
+             Releases reserved stock back to available pool
+```
+
+### Store API
+
+| Method | Purpose |
+|--------|---------|
+| `reserveStock` | Reserve `quantity` for an order — returns `null` if insufficient |
+| `confirmReservation` | Convert reservation to confirmed stock deduction |
+| `releaseReservation` | Release reserved stock back (cancelled/failed orders) |
+| `releaseExpiredReservations` | Bulk-release expired reservations |
+| `deductStock` | Direct stock deduction (non-reservation path) |
+| `restoreStock` | Return stock (e.g. returns/refunds) |
+| `adjustStock` | Manual stock adjustment (admin) |
+| `getItem(productId)` | Returns `InventoryItem` (defaults to 0 stock) |
+| `getAvailable(productId)` | Returns `totalStock - reservedStock` |
+
+### InventoryTransaction
+
+Every stock operation creates an `InventoryTransaction` record:
+
+```typescript
+interface InventoryTransaction {
+  id: string;
+  productId: string;
+  type: "stock_addition" | "stock_deduction" | "reservation" | "release"
+      | "adjustment" | "order_confirm" | "order_cancel_release" | "return_restore";
+  quantity: number;
+  stockBefore: number;
+  stockAfter: number;
+  reservedBefore: number;
+  reservedAfter: number;
+  referenceId: string;   // order ID or admin reference
+  note: string;
+  timestamp: string;
+}
+```
+
+Firebase persistence syncs `items`, `reservations`, and `transactions` under `inventory/`.
+
+---
+
+## Updated Order Type
+
+### OrderItem (Product Snapshot)
+
+File: `src/lib/types.ts:40-49`
+
+```typescript
+interface OrderItem {
+  productId: string;
+  productName: string;
+  sku: string;          // SKU at time of order
+  variant: string;      // Variant label
+  image: string;        // Product image URL
+  unitPrice: number;    // Price per unit at time of order
+  quantity: number;
+  lineTotal: number;    // unitPrice × quantity
+}
+```
+
+### Order (extended)
+
+File: `src/lib/types.ts:77-96`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Same as `orderNumber` |
+| `orderNumber` | `string` | `ONX-YYYYMMDD-000001` |
+| `items` | `OrderItem[]` | Product snapshots with SKU/variant/image/price |
+| `subtotal` | `number` | From `PricingEngine` |
+| `shipping` | `number` | From `ShippingProvider` |
+| `tax` | `number` | From `PricingEngine` |
+| `discount` | `number` | From `PricingEngine` |
+| `total` | `number` | From `PricingEngine` |
+| `shippingProvider` | `string` | Provider name (e.g. `"flat_rate"`) |
+| `status` | `OrderStatus` | 9-state lifecycle |
+| `timeline` | `OrderTimelineEvent[]` | Replaces `statusHistory` |
+| `paymentId` | `string \| null` | Payment gateway reference |
+| `paymentMethod` | `string` | e.g. `"dummy"` |
+| `createdAt` | `string` | ISO 8601 |
+| `updatedAt` | `string` | ISO 8601 |
+
+### OrderTimelineEvent
+
+```typescript
+interface OrderTimelineEvent {
+  timestamp: string;    // ISO 8601
+  actor: string;        // "customer" | "system" | "admin"
+  action: string;       // e.g. "Order placed", "Payment confirmed"
+  note?: string;        // Optional detail (e.g. payment ID)
+}
+```
+
+---
+
+## Updated OrderStatus
+
+File: `src/lib/types.ts:3-12`
+
+Now with 9 states in a forward-flow lifecycle:
+
+```
+Draft ──→ Pending Payment ──→ Confirmed ──→ Packed ──→ Shipped ──→ Delivered
+  │              │                │                                      │
+  └──→ Cancelled ←┘──────────────┘──────────────────────────────────────┘
+                                                                         │
+                                                              Returned ──┘
+                                                                   │
+                                                              Refunded
+```
+
+| Status | Description |
+|--------|-------------|
+| Draft | Initial creation, not yet submitted |
+| Pending Payment | Awaiting payment confirmation |
+| Confirmed | Payment received, order accepted |
+| Packed | Items picked and packed |
+| Shipped | Dispatched to carrier |
+| Delivered | Received by customer |
+| Cancelled | Order voided (from Draft, Pending Payment, or Confirmed) |
+| Returned | Customer initiated return (from Delivered) |
+| Refunded | Amount returned to customer |
+
+Transition map: `ORDER_STATUS_FLOW` in `src/lib/types.ts:14-24`.
+
+---
+
+## Checkout Flow
+
+File: `src/app/checkout/page.tsx`
+
+Reservation-based checkout with four steps: Cart → Address → Payment → Confirmation.
+
+### Flow
+
+```
+1. Cart Review
+   │
+2. Collect Address
+   │
+3. reserveStock() ←── one reservation per cart item
+   │                     returns null if insufficient stock
+   │
+4. Payment (with dummy provider)
+   │
+   ├── on failure → releaseReservation() for all reserved IDs
+   │
+   └── on success → confirmReservation() for all reserved IDs
+                     generateOrderNumber() for order ID
+                     calculatePricing() for financials
+                     getShippingProvider().calculate() for shipping
+                     OrderItem snapshots (sku/variant/image/price)
+                     addOrder() to Zustand orders store
+                     orderConfirmationHtml() email (non-blocking)
+                     clearCart()
+```
+
+### Key Libraries Used
+
+| Concern | Library | Function |
+|---------|---------|----------|
+| Pricing | `@/lib/pricing` | `calculatePricing`, `buildPricingInput` |
+| Shipping | `@/lib/shipping` | `getShippingProvider` |
+| Order number | `@/lib/order-number` | `generateOrderNumber` |
+| Inventory | `@/store/inventory` | `reserveStock`, `confirmReservation`, `releaseReservation` |
+| Payment | `@/lib/payment` | `getPaymentProvider` |
+| Email | `@/lib/email` | `getEmailProvider`, `orderConfirmationHtml` |
+
+### Cleanup
+
+On checkout page unmount (e.g. user navigates away before completing), all active reservations are automatically released via `useEffect` cleanup:
+
+```typescript
+useEffect(() => {
+  return () => {
+    reservationIds.forEach((id) => releaseReservation(id));
+  };
+}, [reservationIds, releaseReservation]);
+```
 
 ---
 
